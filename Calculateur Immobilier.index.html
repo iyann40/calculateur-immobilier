@@ -1,0 +1,2534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur immobilier bi-modal — Néo-banque clair</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   NÉO-BANQUE CLAIR — Design system
+   ============================================================ */
+:root {
+  /* Surfaces & ink */
+  --bg-screen:   #F1F2F9;
+  --surface:     #FFFFFF;
+  --ink:         #191A2C;
+  --ink-2:       #73748A;
+  --track:       #ECEDF4;
+
+  /* Brand */
+  --accent:      #5B5BF0;
+  --accent-soft: #ECECFE;
+  --accent-tint: #E6E7F2;
+
+  /* Semantic */
+  --pos:      #16A36A;  --pos-bg:  #E4F6ED;
+  --warn:     #D9930B;  --warn-bg: #FBF1DD;
+  --neg:      #E0524A;  --neg-bg:  #FCE9E7;
+  --teal:     #0E8C86;
+
+  /* Depth */
+  --shadow: 0 6px 22px rgba(28,30,80,0.07);
+  --shadow-pill: 0 2px 6px rgba(28,30,80,0.10);
+
+  /* Radii */
+  --r-lg: 24px;
+  --r-md: 18px;
+  --r-sm: 14px;
+  --r-xs: 9px;
+
+  /* Type */
+  --sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --mono: "Spline Sans Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 700px at 50% -10%, #FBFBFE 0%, #E7E8F1 60%, #DFE0EC 100%);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- Review stage ---------- */
+.stage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 56px;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 64px 40px 96px;
+}
+.stage-head {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.stage-head h1 {
+  font-size: 19px; font-weight: 800; letter-spacing: -0.01em;
+  color: #2A2B45;
+}
+.stage-head p {
+  margin-top: 6px; font-size: 13px; color: #84859A; font-weight: 500;
+}
+.frame-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.frame-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #9899AD; display: flex; align-items: center; gap: 8px;
+}
+.frame-label .num {
+  background: var(--accent); color: #fff; width: 20px; height: 20px;
+  border-radius: 7px; display: grid; place-items: center; font-size: 11px;
+}
+
+/* ---------- Phone shell ---------- */
+.phone {
+  width: 390px; height: 844px;
+  background: var(--bg-screen);
+  border-radius: 46px;
+  padding: 11px;
+  box-shadow:
+    0 0 0 11px #1b1c2b,
+    0 0 0 13px #2c2d42,
+    0 40px 80px -28px rgba(20,21,40,0.55);
+  position: relative;
+}
+.screen {
+  width: 100%; height: 100%;
+  background: var(--bg-screen);
+  border-radius: 36px;
+  overflow: hidden;
+  position: relative;
+  display: flex; flex-direction: column;
+}
+
+/* status bar */
+.statusbar {
+  height: 50px; flex: none;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 30px 0 34px;
+  font-size: 14px; font-weight: 700;
+  position: relative; z-index: 5;
+}
+.statusbar .time { letter-spacing: 0.01em; }
+.statusbar .icons { display: flex; align-items: center; gap: 7px; }
+.statusbar .icons svg { display: block; }
+.notch {
+  position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 32px; background: #14151f; border-radius: 18px; z-index: 6;
+}
+
+/* scroll body */
+.body {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 4px 16px 92px;
+  scrollbar-width: none;
+}
+.body::-webkit-scrollbar { display: none; }
+
+/* home indicator */
+.home-ind {
+  position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%);
+  width: 134px; height: 5px; border-radius: 3px; background: rgba(25,26,44,0.32);
+  z-index: 7;
+}
+
+/* ============================================================
+   GENERIC PRIMITIVES
+   ============================================================ */
+.overline {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent);
+}
+.card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+.card.lg { border-radius: var(--r-lg); }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+.kpi-label {
+  font-size: 10.5px; font-weight: 600; color: var(--ink-2);
+  letter-spacing: 0.01em; line-height: 1.25;
+}
+.kpi-value { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; margin-top: 9px; }
+.kpi-foot { font-size: 10.5px; font-weight: 600; color: var(--ink-2); margin-top: 8px; }
+
+/* chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 10px;
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+/* buttons */
+.btn {
+  width: 100%; border: none; cursor: pointer; font-family: var(--sans);
+  font-size: 15px; font-weight: 700; border-radius: var(--r-sm);
+  padding: 13px 16px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 8px 18px -6px rgba(91,91,240,0.6); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 22px -6px rgba(91,91,240,0.7); }
+.btn-secondary { background: var(--bg-screen); color: var(--ink); }
+.btn-secondary:hover { background: #E8E9F3; }
+
+/* badges A / B */
+.mode-badge {
+  width: 40px; height: 40px; border-radius: 13px; flex: none;
+  display: grid; place-items: center; font-size: 19px; font-weight: 800;
+  background: var(--accent-soft); color: var(--accent);
+}
+
+/* semantic pills */
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+.disclaimer {
+  font-size: 9.5px; line-height: 1.4; color: #9C9DB0; font-weight: 500;
+  text-align: center; padding: 4px 6px;
+}
+
+/* ============================================================
+   APP NAVIGABLE — styles spécifiques au prototype
+   (s'appuie sur styles.css pour les tokens)
+   ============================================================ */
+
+/* ---------- Stage centré (un seul téléphone) ---------- */
+.app-stage {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 22px; padding: 40px 20px;
+}
+.app-stage .hint {
+  font-size: 12px; font-weight: 600; color: #9899AD; letter-spacing: 0.01em;
+  display: flex; align-items: center; gap: 8px;
+}
+.app-stage .hint kbd {
+  font-family: var(--mono); font-size: 11px; background: #fff; border-radius: 6px;
+  padding: 2px 7px; box-shadow: var(--shadow); color: var(--ink);
+}
+
+/* ---------- App chrome inside phone ---------- */
+.app-root { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; }
+
+/* top app bar */
+.appbar {
+  flex: none; display: flex; align-items: center; gap: 10px;
+  padding: 2px 16px 10px;
+}
+.appbar .back {
+  width: 34px; height: 34px; border-radius: 11px; border: none; cursor: pointer;
+  background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center;
+  color: var(--ink); transition: background .15s;
+}
+.appbar .back:hover { background: #F4F4FB; }
+.appbar .ab-titles { flex: 1; min-width: 0; }
+.appbar .ab-kicker { font-size: 9.5px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+.appbar .ab-title { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-top: 1px; }
+.appbar .ab-step { font-size: 10px; font-weight: 700; color: var(--ink-2); font-family: var(--mono); }
+
+/* page transition */
+.page { animation: pageIn .28s cubic-bezier(.22,.7,.3,1) both; }
+@keyframes pageIn { from { transform: translateY(10px); } to { transform: none; } }
+
+/* progress dots for forms */
+.steps { display: flex; gap: 5px; padding: 0 16px 10px; }
+.steps i { height: 4px; flex: 1; border-radius: 3px; background: var(--track); transition: background .25s; }
+.steps i.on { background: var(--accent); }
+.steps i.done { background: #BFC0F6; }
+
+/* sticky footer CTA */
+.footer-cta {
+  flex: none; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--bg-screen) 72%, rgba(241,242,249,0));
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 8;
+}
+.footer-cta .btn { box-shadow: 0 8px 20px -6px rgba(91,91,240,0.55); }
+.footer-cta.dual { display: flex; gap: 10px; }
+.footer-cta.dual .btn { width: auto; flex: 1; }
+
+/* ---------- Form fields ---------- */
+.field { margin-bottom: 12px; }
+.field > label {
+  display: block; font-size: 11px; font-weight: 700; color: var(--ink-2);
+  margin: 0 2px 6px; letter-spacing: 0.01em;
+}
+.input-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border-radius: var(--r-sm);
+  box-shadow: var(--shadow); padding: 0 14px;
+  border: 1.5px solid transparent; transition: border-color .15s, box-shadow .15s;
+}
+.input-wrap:focus-within { border-color: var(--accent); box-shadow: var(--shadow), 0 0 0 4px var(--accent-soft); }
+.input-wrap input {
+  flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: 16px; font-weight: 600; color: var(--ink); padding: 12px 0;
+  text-align: right;
+}
+.input-wrap input::-webkit-outer-spin-button,
+.input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.input-wrap input[type=number] { -moz-appearance: textfield; }
+.input-wrap .unit { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink-2); flex: none; }
+.input-wrap .lead { font-size: 13px; font-weight: 700; color: var(--ink-2); flex: none; }
+
+/* text/select field */
+.input-wrap.text input { text-align: left; font-family: var(--sans); font-size: 15px; font-weight: 600; }
+.seg-choice { display: flex; gap: 6px; }
+.seg-choice button {
+  flex: 1; border: none; cursor: pointer; font-family: var(--sans);
+  font-size: 12.5px; font-weight: 700; padding: 11px 6px; border-radius: var(--r-xs);
+  background: var(--surface); color: var(--ink-2); box-shadow: var(--shadow); transition: all .15s;
+}
+.seg-choice button.on { background: var(--accent); color: #fff; box-shadow: 0 6px 14px -5px rgba(91,91,240,.6); }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.field-row > *, .row2 > *, .row3 > * { min-width: 0; }
+.field-row .field { margin-bottom: 0; }
+.input-wrap input { width: 100%; }
+
+.group-label {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #9899AD; margin: 18px 2px 10px; display: flex; align-items: center; gap: 8px;
+}
+.group-label::after { content: ""; flex: 1; height: 1px; background: var(--track); }
+.group-label:first-child { margin-top: 4px; }
+
+/* slider field */
+.slider-field .sf-top { display: flex; justify-content: space-between; align-items: baseline; margin: 0 2px 8px; }
+.slider-field .sf-top label { font-size: 11px; font-weight: 700; color: var(--ink-2); }
+.slider-field .sf-top .sf-val { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--accent); }
+input[type=range].slider {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 4px;
+  background: var(--track); outline: none;
+}
+input[type=range].slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); cursor: pointer; box-shadow: 0 3px 8px rgba(91,91,240,.5);
+  border: 3px solid #fff;
+}
+input[type=range].slider::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid #fff;
+}
+
+/* small note under field */
+.field-note { font-size: 9.5px; font-weight: 500; color: #9C9DB0; margin: 5px 2px 0; line-height: 1.35; }
+.field-note.warn { color: var(--warn); }
+
+/* ---------- Selector cards (reuse from screen 1) ---------- */
+.sel-flow .reassure {
+  display: flex; gap: 9px; align-items: flex-start; background: var(--surface);
+  border-radius: var(--r-sm); padding: 11px 13px; box-shadow: var(--shadow); margin-bottom: 16px;
+}
+.sel-flow .reassure svg { flex: none; margin-top: 1px; }
+.sel-flow .reassure p { font-size: 12px; line-height: 1.4; color: var(--ink-2); font-weight: 500; }
+.mode-card { position: relative; margin-bottom: 12px; cursor: pointer; transition: transform .14s, box-shadow .2s; }
+.mode-card:active { transform: scale(.99); }
+.mode-card.active { box-shadow: var(--shadow), 0 0 0 2px var(--accent); }
+.mc-top { display: flex; align-items: center; gap: 12px; }
+.mc-titles { flex: 1; min-width: 0; }
+.mc-name { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.mc-horizon { font-size: 11px; font-weight: 600; color: var(--ink-2); margin-top: 2px; }
+.mc-pitch { font-size: 12.5px; line-height: 1.45; color: #43445C; font-weight: 500; margin: 13px 0; }
+.mode-card .chip-row { margin-bottom: 14px; }
+.mc-flag {
+  position: absolute; top: 14px; right: 14px; font-size: 9.5px; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent);
+  background: var(--accent-soft); padding: 4px 8px; border-radius: 7px;
+}
+.s1-head { padding: 4px 4px 16px; }
+.s1-head h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1; margin-top: 9px; text-wrap: balance; }
+
+/* ---------- Dashboard pieces (shared) ---------- */
+.dash-header { display: flex; align-items: center; gap: 12px; padding: 0 2px 14px; }
+.dh-titles { flex: 1; min-width: 0; }
+.dh-name { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.dh-sub { font-size: 11.5px; font-weight: 600; color: var(--ink-2); margin-top: 2px; }
+.avatar { width: 44px; height: 44px; border-radius: 14px; flex: none; background: var(--accent-soft);
+  color: var(--accent); display: grid; place-items: center; font-size: 14px; font-weight: 800; }
+
+.seg { display: flex; gap: 4px; background: var(--accent-tint); border-radius: 16px; padding: 4px; margin-bottom: 14px; }
+.seg button { flex: 1; border: none; cursor: pointer; font-family: var(--sans); background: transparent;
+  border-radius: 12px; padding: 9px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 1px;
+  transition: background .2s, box-shadow .2s; }
+.seg button .seg-title { font-size: 13px; font-weight: 700; color: var(--ink-2); letter-spacing: -0.01em; }
+.seg button .seg-sub { font-size: 9.5px; font-weight: 600; color: #A2A3B6; }
+.seg button.on { background: var(--surface); box-shadow: var(--shadow-pill); }
+.seg button.on .seg-title { color: var(--ink); }
+.seg button.on .seg-sub { color: var(--accent); }
+
+.verdict { display: flex; align-items: center; gap: 11px; border-radius: var(--r-md); padding: 14px 16px; margin-bottom: 12px; }
+.verdict.pos { background: var(--pos-bg); } .verdict.pos .v-dot { background: var(--pos); } .verdict.pos .v-label { color: #0F7A50; } .verdict.pos .v-value { color: var(--pos); }
+.verdict.warn { background: var(--warn-bg); } .verdict.warn .v-dot { background: var(--warn); } .verdict.warn .v-label { color: #A9760C; } .verdict.warn .v-value { color: var(--warn); }
+.verdict.neg { background: var(--neg-bg); } .verdict.neg .v-dot { background: var(--neg); } .verdict.neg .v-label { color: #C0413A; } .verdict.neg .v-value { color: var(--neg); }
+.v-dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.v-label { font-size: 14px; font-weight: 700; flex: 1; }
+.v-value { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+
+.kpi-pos { background: var(--pos-bg); } .kpi-pos .kpi-label, .kpi-pos .kpi-foot { color: #2E8C61; } .kpi-pos .kpi-value { color: var(--pos); }
+.kpi-warn { background: var(--warn-bg); } .kpi-warn .kpi-label, .kpi-warn .kpi-foot { color: #A9760C; } .kpi-warn .kpi-value { color: var(--warn); }
+.kpi-neg { background: var(--neg-bg); } .kpi-neg .kpi-label, .kpi-neg .kpi-foot { color: #C0413A; } .kpi-neg .kpi-value { color: var(--neg); }
+.sect-gap { margin-bottom: 12px; }
+
+.cf-card { display: flex; flex-direction: column; }
+.minibars { display: flex; align-items: flex-end; gap: 3px; height: 40px; margin-top: 14px; }
+.minibars span { flex: 1; border-radius: 3px 3px 2px 2px; background: var(--track); transition: height .3s; }
+
+.donut-card { display: flex; flex-direction: column; align-items: center; }
+.donut-wrap { position: relative; width: 104px; height: 104px; margin: 6px 0 4px; }
+.donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.dc-val { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+.dc-cap { font-size: 9px; font-weight: 700; color: var(--ink-2); letter-spacing: 0.04em; text-transform: uppercase; margin-top: 1px; }
+.donut-legend { font-size: 10.5px; font-weight: 600; color: var(--ink-2); }
+.donut-legend b { color: var(--ink); font-family: var(--mono); font-weight: 600; }
+
+.gauge-head { display: flex; align-items: baseline; justify-content: space-between; }
+.gauge-head .g-val { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+.gauge-track { position: relative; height: 14px; border-radius: 8px; background: var(--track); margin: 30px 0 10px; }
+.gauge-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 8px; transition: width .4s, background .3s; }
+.gauge-fill.pos { background: var(--pos); } .gauge-fill.warn { background: var(--warn); } .gauge-fill.neg { background: var(--neg); }
+.gauge-marker { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--neg); }
+.gauge-marker::after { content: attr(data-label); position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; font-weight: 800; color: var(--neg); font-family: var(--mono); white-space: nowrap; }
+.gauge-foot { display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 600; color: var(--ink-2); }
+.gauge-foot b { color: var(--ink); font-family: var(--mono); font-weight: 600; }
+
+.proj-legend { display: flex; gap: 16px; margin-top: 12px; }
+.proj-legend span { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 600; color: var(--ink-2); }
+.lg-swatch { width: 16px; height: 0; border-top: 3px solid; border-radius: 2px; }
+.lg-dash { border-top: 3px dashed; }
+
+.hypo-row { display: flex; align-items: center; gap: 10px; margin: 14px 0 6px; }
+.hypo-chip { display: inline-flex; align-items: center; gap: 7px; background: var(--accent-soft); border-radius: 11px; padding: 7px 11px; cursor: pointer; }
+.hypo-chip.warn { background: var(--warn-bg); }
+.hc-val { font-size: 11px; font-weight: 700; color: var(--accent); font-family: var(--mono); }
+.hypo-chip.warn .hc-val { color: #A9760C; }
+.hc-edit { font-size: 11px; font-weight: 700; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.hypo-note { flex: 1; font-size: 9px; line-height: 1.35; color: #9C9DB0; font-weight: 500; text-align: right; }
+
+.card-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+.card-sub { font-size: 10.5px; font-weight: 600; color: var(--ink-2); margin-top: 2px; }
+
+/* ---------- Régimes comparatif ---------- */
+.regime-card { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; cursor: pointer; transition: box-shadow .2s, transform .12s; }
+.regime-card:active { transform: scale(.99); }
+.regime-card.best { box-shadow: var(--shadow), 0 0 0 2px var(--pos); }
+.regime-card.sel { box-shadow: var(--shadow), 0 0 0 2px var(--accent); }
+.rc-left { flex: 1; min-width: 0; }
+.rc-name { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; }
+.rc-detail { font-size: 10.5px; font-weight: 600; color: var(--ink-2); margin-top: 2px; }
+.rc-right { text-align: right; flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.regime-card { align-items: flex-start; }
+.rc-cf { font-size: 17px; font-weight: 600; font-family: var(--mono); letter-spacing: -0.01em; }
+.rc-rdt { font-size: 10px; font-weight: 600; color: var(--ink-2); font-family: var(--mono); margin-top: 2px; }
+.rc-tag { font-size: 9px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pos);
+  background: var(--pos-bg); padding: 3px 7px; border-radius: 6px; }
+
+/* ---------- Scénarios / stress ---------- */
+.stress-row { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--track); }
+.stress-row:last-child { border-bottom: none; }
+.stress-row .sr-icon { width: 32px; height: 32px; border-radius: 10px; flex: none; display: grid; place-items: center; font-family: var(--mono); font-size: 13px; font-weight: 700; }
+.sr-icon.pos { background: var(--pos-bg); color: var(--pos); } .sr-icon.warn { background: var(--warn-bg); color: var(--warn); } .sr-icon.neg { background: var(--neg-bg); color: var(--neg); }
+.sr-mid { flex: 1; min-width: 0; }
+.sr-label { font-size: 13px; font-weight: 700; }
+.sr-delta { font-size: 10.5px; font-weight: 600; color: var(--ink-2); font-family: var(--mono); margin-top: 1px; }
+.sr-val { text-align: right; flex: none; }
+.sr-main { font-size: 15px; font-weight: 600; font-family: var(--mono); }
+.sr-sub { font-size: 10px; font-weight: 600; color: var(--ink-2); font-family: var(--mono); }
+
+.scen-tri { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.scen-cell { background: var(--surface); border-radius: var(--r-sm); box-shadow: var(--shadow); padding: 12px 10px; text-align: center; }
+.scen-cell.med { box-shadow: var(--shadow), 0 0 0 2px var(--accent); }
+.scen-cap { font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-2); }
+.scen-big { font-size: 16px; font-weight: 600; font-family: var(--mono); margin-top: 6px; letter-spacing: -0.01em; }
+.scen-small { font-size: 10px; font-weight: 600; font-family: var(--mono); color: var(--ink-2); margin-top: 3px; }
+
+/* ---------- Report preview ---------- */
+.report-pages { display: flex; flex-direction: column; gap: 14px; }
+.rp-page { background: #fff; border-radius: 10px; box-shadow: var(--shadow); padding: 16px; position: relative; }
+.rp-page::before { content: attr(data-page); position: absolute; top: 12px; right: 14px; font-family: var(--mono); font-size: 9px; font-weight: 700; color: #C2C3D4; }
+.rp-brand { display: flex; align-items: center; gap: 8px; padding: 0 24px 10px 0; border-bottom: 1.5px solid var(--track); margin-bottom: 12px; }
+.rp-logo { width: 22px; height: 22px; border-radius: 7px; background: var(--accent); flex: none; }
+.rp-brand-name { font-size: 12px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; }
+.rp-brand-sub { font-size: 9px; font-weight: 600; color: var(--ink-2); margin-top: 2px; }
+.rp-brand > div { flex: 1; min-width: 0; }
+.rp-h { font-size: 13px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.01em; }
+.rp-kpis { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+.rp-kpi { background: var(--bg-screen); border-radius: 9px; padding: 9px; }
+.rp-kpi .k { font-size: 8px; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: .04em; }
+.rp-kpi .v { font-size: 14px; font-weight: 600; font-family: var(--mono); margin-top: 3px; }
+.rp-line { display: flex; justify-content: space-between; font-size: 11px; padding: 6px 0; border-bottom: 1px dashed var(--track); }
+.rp-line:last-child { border-bottom: none; }
+.rp-line .l { color: var(--ink-2); font-weight: 600; }
+.rp-line .v { font-family: var(--mono); font-weight: 600; }
+.rp-line.total { border-top: 1.5px solid var(--ink); border-bottom: none; margin-top: 4px; padding-top: 8px; font-weight: 800; }
+.rp-line.total .l { color: var(--ink); font-weight: 800; }
+.rp-disclaimer { font-size: 8px; color: #A2A3B6; text-align: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--track); line-height: 1.4; }
+
+/* download bar */
+.dl-bar { display: flex; gap: 10px; align-items: center; background: var(--surface); border-radius: var(--r-md); box-shadow: var(--shadow); padding: 13px 14px; margin-bottom: 14px; }
+.dl-bar .dl-ic { width: 38px; height: 38px; border-radius: 11px; background: var(--accent-soft); display: grid; place-items: center; flex: none; }
+.dl-bar .dl-tx { flex: 1; } .dl-bar .dl-tx .t { font-size: 13px; font-weight: 800; } .dl-bar .dl-tx .s { font-size: 10.5px; font-weight: 600; color: var(--ink-2); }
+
+/* generic list rows on dashboard */
+.kv-card .kv { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-bottom: 1px dashed var(--track); }
+.kv-card .kv:last-child { border-bottom: none; }
+.kv-card .kv .k { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.kv-card .kv .v { font-size: 14px; font-weight: 600; font-family: var(--mono); letter-spacing: -0.01em; }
+
+/* toast */
+.toast { position: absolute; left: 16px; right: 16px; bottom: 88px; background: var(--ink); color: #fff;
+  border-radius: 12px; padding: 12px 14px; font-size: 12px; font-weight: 600; z-index: 20;
+  box-shadow: 0 10px 24px rgba(20,21,40,.4); animation: toastIn .3s ease; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* edit-hypothesis sheet */
+.sheet-backdrop { position: absolute; inset: 0; background: rgba(20,21,40,.34); z-index: 30; display: flex; align-items: flex-end;
+  animation: fadeIn .2s ease; border-radius: 36px; overflow: hidden; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.sheet { width: 100%; background: var(--bg-screen); border-radius: 26px 26px 0 0; padding: 8px 16px calc(20px + env(safe-area-inset-bottom));
+  animation: sheetUp .3s cubic-bezier(.22,.7,.3,1); max-height: 80%; overflow-y: auto; }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+.sheet-grab { width: 38px; height: 5px; border-radius: 3px; background: #C9CAD9; margin: 6px auto 14px; }
+.sheet h3 { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+.sheet .sub { font-size: 11.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 16px; line-height: 1.4; }
+.src-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; font-family: var(--mono);
+  color: var(--ink-2); background: var(--track); padding: 5px 9px; border-radius: 8px; margin-bottom: 14px; }
+
+/* ---------- Structures juridiques ---------- */
+.screen-intro { font-size: 12px; line-height: 1.45; font-weight: 500; color: var(--ink-2); margin: 0 2px 14px; }
+
+.cmp-list { display: flex; flex-direction: column; gap: 11px; }
+.cmp-row { display: grid; grid-template-columns: 96px 1fr auto; align-items: center; gap: 10px; }
+.cmp-name { font-size: 11px; font-weight: 700; color: var(--ink); line-height: 1.15; }
+.cmp-bar { height: 9px; border-radius: 6px; background: var(--track); overflow: hidden; }
+.cmp-fill { height: 100%; border-radius: 6px; transition: width .45s cubic-bezier(.22,.7,.3,1); }
+.cmp-fill.pos { background: var(--accent); } .cmp-fill.neg { background: var(--neg); }
+.cmp-val { font-size: 12px; font-weight: 600; letter-spacing: -0.01em; text-align: right; }
+.cmp-val.pos { color: var(--ink); } .cmp-val.neg { color: var(--neg); }
+
+.struct-card { margin-bottom: 10px; cursor: pointer; transition: box-shadow .2s; padding: 14px 15px; }
+.struct-card.best { box-shadow: var(--shadow), 0 0 0 1.5px var(--pos); }
+.struct-card.sel { box-shadow: var(--shadow), 0 0 0 1.5px var(--accent); }
+.struct-head { display: flex; align-items: center; gap: 11px; }
+.fam-chip { flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.02em; }
+.fam-chip.ir { background: var(--accent-soft); color: var(--accent); }
+.fam-chip.is { background: #E3F2F1; color: var(--teal); }
+.struct-titles { flex: 1; min-width: 0; }
+.struct-name { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; display: flex; align-items: center; gap: 7px; }
+.struct-note { font-size: 10px; font-weight: 600; color: var(--ink-2); margin-top: 2px; line-height: 1.3; }
+.struct-right { text-align: right; flex: none; }
+.struct-val { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.struct-val.pos { color: var(--ink); } .struct-val.neg { color: var(--neg); }
+.struct-tax { font-size: 9.5px; font-weight: 600; color: var(--ink-2); margin-top: 2px; }
+.opt-tag { font-size: 8.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pos);
+  background: var(--pos-bg); padding: 2px 6px; border-radius: 5px; }
+.chev { flex: none; color: #B7B8CC; transition: transform .25s; margin-left: 2px; }
+.chev.up { transform: rotate(180deg); }
+
+.struct-detail { margin-top: 14px; padding-top: 13px; border-top: 1px dashed var(--track); animation: pageIn .22s ease; }
+.sd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 14px; }
+.sd-cell.wide { grid-column: 1 / -1; }
+.sd-cell .k { font-size: 10px; font-weight: 600; color: var(--ink-2); line-height: 1.25; }
+.sd-cell .v { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; margin-top: 4px; }
+.sd-cell .v.neg { color: var(--neg); }
+
+/* ---------- Horizon de revente ---------- */
+.chip-scroll { display: flex; gap: 7px; overflow-x: auto; padding: 2px 2px 10px; margin: 0 -2px; scrollbar-width: none; }
+.chip-scroll::-webkit-scrollbar { display: none; }
+.struct-chip {
+  flex: none; border: none; cursor: pointer; font-family: var(--sans);
+  background: var(--surface); box-shadow: var(--shadow); border-radius: 11px;
+  padding: 9px 13px; display: flex; align-items: center; gap: 8px; transition: box-shadow .18s, background .18s;
+}
+.struct-chip .sc-fam { font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 5px; }
+.struct-chip .sc-fam.ir { background: var(--accent-soft); color: var(--accent); }
+.struct-chip .sc-fam.is { background: #E3F2F1; color: var(--teal); }
+.struct-chip .sc-name { font-size: 12.5px; font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+.struct-chip.on { background: var(--accent); box-shadow: 0 6px 14px -5px rgba(91,91,240,.6); }
+.struct-chip.on .sc-name { color: #fff; }
+.struct-chip.on .sc-fam { background: rgba(255,255,255,.25); color: #fff; }
+
+.timing-hero { background: var(--ink); border-radius: var(--r-lg); padding: 18px 18px 16px; margin-bottom: 12px; color: #fff; }
+.timing-hero .th-k { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #A8A9C8; }
+.timing-hero .th-v { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; margin-top: 4px; line-height: 1; }
+.timing-hero .th-v small { font-size: 16px; font-weight: 700; color: #C9CAE6; }
+.timing-hero .th-sub { font-size: 12px; font-weight: 600; color: #C9CAE6; margin-top: 9px; font-family: var(--mono); }
+.timing-hero .th-sub b { color: #fff; }
+
+.chart-x { display: flex; justify-content: space-between; font-size: 9px; font-weight: 700; color: #A2A3B6; font-family: var(--mono); margin-top: 4px; padding: 0 2px; }
+
+.hz-table { margin-top: 6px; }
+.hz-row { display: grid; grid-template-columns: 56px 1fr 1fr 56px; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px dashed var(--track); }
+.hz-row:last-child { border-bottom: none; }
+.hz-row.head { padding: 4px 0 8px; border-bottom: 1.5px solid var(--track); }
+.hz-row.head span { font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+.hz-row.opt { background: var(--accent-soft); border-radius: 10px; padding: 10px 8px; margin: 2px -8px; border-bottom: none; }
+.hz-yr { font-size: 13px; font-weight: 800; font-family: var(--mono); }
+.hz-cell { font-size: 13px; font-weight: 600; font-family: var(--mono); letter-spacing: -0.01em; }
+.hz-cell.sub { font-size: 11px; color: var(--ink-2); }
+.hz-tri { font-size: 13px; font-weight: 700; font-family: var(--mono); text-align: right; color: var(--accent); }
+.hz-star { font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+
+.note-card { display: flex; gap: 10px; align-items: flex-start; background: var(--surface); border-radius: var(--r-sm);
+  box-shadow: var(--shadow); padding: 13px 14px; margin-bottom: 12px; }
+.note-card svg { flex: none; margin-top: 1px; }
+.note-card p { font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #43445C; }
+
+/* ============================================================
+   STRATÉGIE DE REMPLOI
+   ============================================================ */
+.remploi-hero {
+  background: linear-gradient(135deg, #5B5BF0 0%, #4747D6 100%);
+}
+.remploi-hero .th-v { color: #fff; }
+.remploi-hero .th-sub { color: #DEDEFB; }
+.remploi-hero .th-sub b { color: #fff; }
+.remploi-hero .th-k { color: #C7C7FA; }
+
+/* levier : capital → capacité → biens */
+.lev-flow { display: flex; align-items: stretch; gap: 8px; }
+.lev-step {
+  flex: 1; min-width: 0; background: var(--bg-screen); border-radius: var(--r-xs);
+  padding: 12px 10px; text-align: center; display: flex; flex-direction: column; gap: 4px; justify-content: center;
+}
+.lev-step.accent { background: var(--accent-soft); }
+.lev-step .ls-k { font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+.lev-step .ls-v { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); }
+.lev-step.accent .ls-v { color: var(--accent); }
+.lev-arrow { flex: none; align-self: center; }
+
+.prop-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; }
+.prop-icons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.prop-ic {
+  width: 30px; height: 30px; border-radius: 9px; background: var(--accent-soft); color: var(--accent);
+  display: grid; place-items: center; flex: none;
+}
+.prop-more { font-size: 12px; font-weight: 700; color: var(--accent); margin-left: 2px; }
+.prop-note { font-size: 10px; font-weight: 600; color: var(--ink-2); font-family: var(--mono); text-align: right; flex: none; }
+
+/* boule de neige */
+.snow-chart { position: relative; margin-top: 14px; }
+.snow-bars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: end; height: 188px; }
+.snow-bar { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; gap: 0; }
+.snow-bar .sb-val { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.01em; }
+.snow-bar .sb-track { width: 100%; flex: 1; display: flex; align-items: flex-end; }
+.snow-bar .sb-fill {
+  width: 100%; border-radius: 8px 8px 3px 3px;
+  background: linear-gradient(to top, #6E6EF2, #9B9BF7);
+  transition: height .45s cubic-bezier(.22,.7,.3,1);
+}
+.snow-bar:first-child .sb-fill { background: linear-gradient(to top, #C7C7FA, #DCDCFC); }
+.snow-bar:last-child .sb-fill { background: linear-gradient(to top, #4747D6, #6E6EF2); }
+.snow-bar .sb-cap { margin-top: 8px; text-align: center; display: flex; flex-direction: column; gap: 1px; }
+.snow-bar .sb-cap b { font-size: 11px; font-weight: 800; color: var(--ink); }
+.snow-bar .sb-cap span { font-size: 9.5px; font-weight: 600; color: var(--ink-2); font-family: var(--mono); }
+.snow-ref {
+  position: absolute; left: 0; right: 0; height: 0; border-top: 1.5px dashed var(--ink-2);
+  opacity: .5; z-index: 2; pointer-events: none;
+}
+.snow-ref-tag {
+  position: absolute; right: 0; top: -14px; font-size: 9px; font-weight: 700; color: var(--ink-2);
+  background: var(--surface); padding: 0 4px;
+}
+
+.remploi-delta {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border-radius: var(--r-sm); padding: 12px 14px; margin-top: 14px;
+}
+.remploi-delta.pos { background: var(--pos-bg); }
+.remploi-delta.neg { background: var(--neg-bg); }
+.remploi-delta .rd-label { font-size: 11px; font-weight: 700; line-height: 1.3; }
+.remploi-delta.pos .rd-label { color: #0F7A50; }
+.remploi-delta.neg .rd-label { color: #C0413A; }
+.remploi-delta .rd-val { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; flex: none; }
+.remploi-delta.pos .rd-val { color: var(--pos); }
+.remploi-delta.neg .rd-val { color: var(--neg); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script>
+/* ============================================================
+   MOTEUR DE CALCUL — bi-modal, fonction pure
+   calc(inputs, mode, hypotheses) → results
+   Aucune dépendance, testable, partagé web/mobile.
+   ============================================================ */
+(function () {
+  "use strict";
+
+  /* ---------- Formatage FR ---------- */
+  const NBSP = "\u202F"; // espace fine insécable
+  function groupThousands(s) { return s.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP); }
+  function fmtEuro(v, dec) {
+    if (v == null || isNaN(v)) return "—";
+    const neg = v < 0; const a = Math.abs(v);
+    const f = (dec ? a.toFixed(dec) : Math.round(a).toString());
+    const parts = f.split(".");
+    parts[0] = groupThousands(parts[0]);
+    return (neg ? "−" : "") + parts.join(",") + NBSP + "€";
+  }
+  function fmtSignedEuro(v) { return (v >= 0 ? "+" : "") + fmtEuro(v); }
+  function fmtK(v) {
+    const neg = v < 0; const a = Math.abs(v);
+    const k = a / 1000;
+    const s = k >= 100 ? Math.round(k).toString() : k.toFixed(0);
+    return (neg ? "−" : "") + groupThousands(s) + NBSP + "k€";
+  }
+  function fmtPct(v, dec) {
+    if (v == null || isNaN(v)) return "—";
+    return v.toFixed(dec == null ? 1 : dec).replace(".", ",") + NBSP + "%";
+  }
+  function fmtNum(v, dec) {
+    if (v == null || isNaN(v)) return "—";
+    return v.toFixed(dec == null ? 2 : dec).replace(".", ",");
+  }
+
+  /* ---------- Hypothèses par défaut (sourcées, datées) ---------- */
+  const HYPOTHESES = {
+    ps:            { val: 17.2, label: "Prélèvements sociaux", src: "BOFiP 2026", warn: true,
+                     note: "Périmètre de la hausse CSG 2026 à confirmer (17,2 % vs 18,6 %)." },
+    tmi:           { val: 30,   label: "Tranche marginale (IR)", src: "Barème IR 2026" },
+    microFoncier:  { val: 30,   label: "Abattement micro-foncier", src: "CGI art. 32 — 2026" },
+    microBIC:      { val: 50,   label: "Abattement micro-BIC meublé", src: "CGI art. 50-0 — 2026" },
+    isReduit:      { val: 15,   label: "IS taux réduit (≤ 42 500 €)", src: "CGI art. 219 — 2026" },
+    isNormal:      { val: 25,   label: "IS taux normal", src: "CGI art. 219 — 2026" },
+    flatTax:       { val: 30,   label: "Flat tax distribution", src: "PFU — 2026" },
+    droitsMdB:     { val: 0.715,label: "Droits MdB (engagement 5 ans)", src: "CGI art. 1115 — 2026", warn: true,
+                     note: "Engagement de revendre dans 5 ans (2 ans par lots)." },
+    hcsf:          { val: 35,   label: "Plafond endettement HCSF", src: "HCSF 2024" },
+    margeCible:    { val: 20,   label: "Marge brute cible MdB", src: "Règle interne" },
+    amortBati:     { val: 2.5,  label: "Amortissement bâti LMNP", src: "PCG / composants" }
+  };
+
+  /* ---------- Crédit : mensualité amortissement constant ---------- */
+  function mensualite(capital, tauxAnnuelPct, dureeAnnees) {
+    if (capital <= 0 || dureeAnnees <= 0) return 0;
+    const n = dureeAnnees * 12;
+    const t = tauxAnnuelPct / 100 / 12;
+    if (t === 0) return capital / n;
+    return capital * t / (1 - Math.pow(1 + t, -n));
+  }
+  // tableau d'amortissement → CRD année par année + intérêts an 1
+  function amortissement(capital, tauxAnnuelPct, dureeAnnees) {
+    const n = dureeAnnees * 12;
+    const t = tauxAnnuelPct / 100 / 12;
+    const m = mensualite(capital, tauxAnnuelPct, dureeAnnees);
+    let crd = capital; const crdParAn = [capital]; let interets1 = 0;
+    for (let i = 1; i <= n; i++) {
+      const int = crd * t; const principal = m - int;
+      crd = Math.max(0, crd - principal);
+      if (i <= 12) interets1 += int;
+      if (i % 12 === 0) crdParAn.push(crd);
+    }
+    return { mensualite: m, interets1, crdParAn };
+  }
+
+  /* ============================================================
+     MODE B — LOCATIF
+     ============================================================ */
+  function regimeLocatif(regime, ctx, H) {
+    // ctx : { loyerEncaisse, chargesDeductibles, interets1, assuranceAn, baseAmort, tmi, ps }
+    const { loyerEncaisse, chargesDeductibles, interets1, assuranceAn, baseAmort } = ctx;
+    const tmi = H.tmi.val / 100, ps = H.ps.val / 100;
+    let imposable, impotIR = 0, psDus = 0, isDu = 0, label, detail;
+
+    if (regime === "micro") {
+      imposable = loyerEncaisse * (1 - H.microFoncier.val / 100);
+      impotIR = imposable * tmi; psDus = imposable * ps;
+      label = "Micro-foncier"; detail = "Abattement " + H.microFoncier.val + " %";
+    } else if (regime === "reel") {
+      imposable = Math.max(0, loyerEncaisse - chargesDeductibles - interets1 - assuranceAn);
+      impotIR = imposable * tmi; psDus = imposable * ps;
+      label = "Réel foncier"; detail = "Charges + intérêts déduits";
+    } else if (regime === "lmnp") {
+      const amort = baseAmort * (H.amortBati.val / 100) + (ctx.amortMobilier || 0);
+      imposable = Math.max(0, loyerEncaisse - chargesDeductibles - interets1 - assuranceAn - amort);
+      impotIR = imposable * tmi; psDus = imposable * ps;
+      label = "LMNP réel"; detail = "Amortissement " + fmtEuro(amort);
+    } else { // sci-is
+      const amort = baseAmort * (H.amortBati.val / 100) + (ctx.amortMobilier || 0);
+      const res = Math.max(0, loyerEncaisse - chargesDeductibles - interets1 - assuranceAn - amort);
+      isDu = res <= 42500 ? res * (H.isReduit.val / 100)
+                          : 42500 * (H.isReduit.val / 100) + (res - 42500) * (H.isNormal.val / 100);
+      imposable = res;
+      label = "SCI à l'IS"; detail = "IS 15 % / 25 %";
+    }
+    return { regime, label, detail, imposable, impot: impotIR + isDu, ps: psDus,
+             total: impotIR + isDu + psDus };
+  }
+
+  function calcLocatif(I, H) {
+    const coutTotal = I.prix + I.travaux + I.fraisNotaire + I.honoraires + I.fraisDossier + I.mobilier;
+    const am = amortissement(I.emprunt, I.taux, I.dureeAnnees);
+    const assuranceAn = I.emprunt * (I.assurance / 100);
+    const assuranceMois = assuranceAn / 12;
+    const serviceAnnuel = am.mensualite * 12 + assuranceAn;
+
+    const loyerAnnuelHC = I.loyerHC * 12;
+    const loyerEncaisse = loyerAnnuelHC * (1 - I.vacance / 100);
+    const fraisGestion = loyerEncaisse * (I.gestion / 100);
+    const chargesExploit = fraisGestion + I.assurancesPNO + I.taxeFonciere + I.chargesNonRecup + I.capex;
+    const chargesDeductibles = fraisGestion + I.assurancesPNO + I.taxeFonciere + I.chargesNonRecup;
+
+    const baseAmort = (I.prix + I.travaux) * 0.8; // base 80 % (terrain non amorti)
+    const amortMobilier = I.mobilier > 0 ? I.mobilier / 7 : 0;
+    const ctx = { loyerEncaisse, chargesDeductibles, interets1: am.interets1, assuranceAn, baseAmort, amortMobilier };
+
+    const regimes = ["micro", "reel", "lmnp", "sci-is"].map(r => {
+      const fisc = regimeLocatif(r, ctx, H);
+      const cfNetNet = loyerEncaisse - serviceAnnuel - chargesExploit - fisc.total;
+      return Object.assign({}, fisc, { cfNetNet, rdtNetNet: (loyerEncaisse - chargesExploit - fisc.total) / coutTotal * 100 });
+    });
+    const fisc = regimes.find(r => r.regime === I.regime) || regimes[2];
+
+    const cfBrutAnnuel = loyerEncaisse - serviceAnnuel;
+    const cfNetAnnuel = cfBrutAnnuel - chargesExploit;
+    const cfNetNetAnnuel = cfNetAnnuel - fisc.total;
+
+    const rdtBrut = loyerAnnuelHC / coutTotal * 100;
+    const rdtNet = (loyerEncaisse - chargesExploit) / coutTotal * 100;
+    const rdtNetNet = (loyerEncaisse - chargesExploit - fisc.total) / coutTotal * 100;
+
+    const dscr = serviceAnnuel > 0 ? (loyerEncaisse - chargesExploit) / serviceAnnuel : 0;
+    const ltv = I.prix > 0 ? I.emprunt / I.prix * 100 : 0;
+    const chargeCreditMois = am.mensualite + assuranceMois;
+    const revenusPondere = I.revenusMensuels + (loyerEncaisse / 12) * 0.7;
+    const endettement = revenusPondere > 0 ? chargeCreditMois / revenusPondere * 100 : 0;
+    const resteAVivre = I.revenusMensuels + loyerEncaisse / 12 - chargeCreditMois - I.chargesMenage;
+
+    // mini-barres : cash-flow mensuel net-net lissé + saisonnalité légère
+    const cfMois = cfNetNetAnnuel / 12;
+    const barres = [0.42, 0.55, 0.48, 0.62, 0.58, 0.70, 0.64, 0.78, 0.72, 0.85, 0.80, 1.0];
+
+    // projection 10 ans
+    const valeur = [], crd = [];
+    for (let y = 0; y <= 10; y++) {
+      valeur.push(I.prix * Math.pow(1 + I.revaloBien / 100, y));
+      crd.push(am.crdParAn[Math.min(y, am.crdParAn.length - 1)]);
+    }
+
+    const verdict = cfNetNetAnnuel >= 0
+      ? { tone: "pos", label: "Opération autofinancée" }
+      : (cfNetNetAnnuel > -1200 ? { tone: "warn", label: "Effort d'épargne modéré" }
+                                : { tone: "neg", label: "Effort d'épargne important" });
+
+    return {
+      coutTotal, mensualite: am.mensualite, serviceAnnuel,
+      cfBrutAnnuel, cfNetAnnuel, cfNetNetAnnuel, cfMois,
+      rdtBrut, rdtNet, rdtNetNet, dscr, ltv, endettement, resteAVivre,
+      barres, valeur, crd, regimes, fisc, verdict,
+      seuils: {
+        dscr: dscr >= 1.2 ? "pos" : (dscr >= 1.0 ? "warn" : "neg"),
+        ltv: ltv <= 80 ? "pos" : (ltv <= 90 ? "warn" : "neg"),
+        endettement: endettement <= 33 ? "pos" : (endettement <= 35 ? "warn" : "neg")
+      }
+    };
+  }
+
+  /* ============================================================
+     MODE A — ACHAT-REVENTE
+     ============================================================ */
+  function calcRevente(I, H) {
+    const droits = I.prix * (H.droitsMdB.val / 100);
+    const am = amortissement(I.emprunt, I.taux, Math.max(I.dureeMois / 12, 0.01));
+    // frais de portage = intérêts + assurance + TF prorata + charges, sur la détention
+    const interetsPortage = I.emprunt * (I.taux / 100) * (I.dureeMois / 12) * 0.6; // ~ moyenne sur capital décroissant
+    const assurancePortage = I.emprunt * (I.assurance / 100) * (I.dureeMois / 12);
+    const tfProrata = I.taxeFonciere * (I.dureeMois / 12);
+    const fraisPortage = interetsPortage + assurancePortage + tfProrata + I.chargesPortage;
+    const fraisFinanciers = I.fraisDossier;
+
+    const prixRevient = I.prix + droits + I.travaux + fraisPortage + fraisFinanciers + I.commercialisation;
+
+    function scenario(prixRevente) {
+      const margeBrute = prixRevente - prixRevient;
+      const tauxMarge = prixRevient > 0 ? margeBrute / prixRevient * 100 : 0;
+      const baseIS = Math.max(0, margeBrute);
+      const is = baseIS <= 42500 ? baseIS * (H.isReduit.val / 100)
+               : 42500 * (H.isReduit.val / 100) + (baseIS - 42500) * (H.isNormal.val / 100);
+      const margeNette = margeBrute - is;
+      const roi = I.apport > 0 ? margeNette / I.apport * 100 : 0;
+      const tri = I.apport > 0 && margeNette > -I.apport
+        ? (Math.pow(1 + margeNette / I.apport, 12 / Math.max(I.dureeMois, 1)) - 1) * 100 : 0;
+      return { prixRevente, margeBrute, tauxMarge, is, margeNette, roi, tri };
+    }
+
+    const bas = scenario(I.reventeBas), med = scenario(I.reventeMed), haut = scenario(I.reventeHaut);
+    const prixM2Revente = I.surface > 0 ? med.prixRevente / I.surface : 0;
+    const pointMortNul = prixRevient;
+    const pointMort20 = prixRevient * (1 + H.margeCible.val / 100);
+
+    const verdict = med.tauxMarge >= H.margeCible.val
+      ? { tone: "pos", label: "Marge cible atteinte" }
+      : (med.tauxMarge >= 12 ? { tone: "warn", label: "Marge sous l'objectif" }
+                             : { tone: "neg", label: "Marge insuffisante" });
+
+    return {
+      prixRevient, droits, fraisPortage, fraisFinanciers,
+      bas, med, haut, prixM2Revente, pointMortNul, pointMort20,
+      mensualite: am.mensualite, verdict,
+      seuils: { marge: med.tauxMarge >= 20 ? "pos" : (med.tauxMarge >= 12 ? "warn" : "neg") }
+    };
+  }
+
+  /* ============================================================
+     STRESS TESTS
+     ============================================================ */
+  function stressLocatif(I, H) {
+    const base = calcLocatif(I, H);
+    const tests = [
+      { label: "Taux +1 pt", I: Object.assign({}, I, { taux: I.taux + 1 }) },
+      { label: "Vacance +5 pts", I: Object.assign({}, I, { vacance: I.vacance + 5 }) },
+      { label: "Loyer −1 mois", I: Object.assign({}, I, { loyerHC: I.loyerHC * 11 / 12 }) }
+    ];
+    return { base, rows: tests.map(t => {
+      const r = calcLocatif(t.I, H);
+      return { label: t.label, cf: r.cfNetNetAnnuel, dscr: r.dscr,
+               delta: r.cfNetNetAnnuel - base.cfNetNetAnnuel, seuil: r.seuils.dscr };
+    }) };
+  }
+  function stressRevente(I, H) {
+    const base = calcRevente(I, H);
+    const tests = [
+      { label: "Revente −10 %", I: Object.assign({}, I, {
+          reventeBas: I.reventeBas * .9, reventeMed: I.reventeMed * .9, reventeHaut: I.reventeHaut * .9 }) },
+      { label: "Travaux +15 %", I: Object.assign({}, I, { travaux: I.travaux * 1.15 }) },
+      { label: "Portage +6 mois", I: Object.assign({}, I, { dureeMois: I.dureeMois + 6 }) }
+    ];
+    return { base, rows: tests.map(t => {
+      const r = calcRevente(t.I, H);
+      return { label: t.label, marge: r.med.margeNette, taux: r.med.tauxMarge,
+               delta: r.med.margeNette - base.med.margeNette, seuil: r.seuils.marge };
+    }) };
+  }
+
+  /* ============================================================
+     STRUCTURES JURIDIQUES — comparaison par forme de détention
+     ============================================================ */
+  function legalStructuresLocatif(I, H) {
+    const coutTotal = I.prix + I.travaux + I.fraisNotaire + I.honoraires + I.fraisDossier + I.mobilier;
+    const am = amortissement(I.emprunt, I.taux, I.dureeAnnees);
+    const assuranceAn = I.emprunt * (I.assurance / 100);
+    const serviceAnnuel = am.mensualite * 12 + assuranceAn;
+    const loyerEncaisse = I.loyerHC * 12 * (1 - I.vacance / 100);
+    const fraisGestion = loyerEncaisse * (I.gestion / 100);
+    const chargesDeductibles = fraisGestion + I.assurancesPNO + I.taxeFonciere + I.chargesNonRecup;
+    const chargesExploit = chargesDeductibles + I.capex;
+    const baseAmortBati = (I.prix + I.travaux) * 0.8;
+    const amortBatiAn = baseAmortBati * (H.amortBati.val / 100);
+    const amortMobilierAn = I.mobilier > 0 ? I.mobilier / 7 : 0;
+    const tmi = H.tmi.val / 100, ps = H.ps.val / 100;
+    const valeur10 = I.prix * Math.pow(1 + I.revaloBien / 100, 10);
+    const appreciation = Math.max(0, valeur10 - (I.prix + I.travaux));
+    const baseEco = Math.max(1, loyerEncaisse - chargesExploit - am.interets1 - assuranceAn);
+
+    function pack(id, name, family, note, o) {
+      const resultatNet = loyerEncaisse - serviceAnnuel - chargesExploit - o.impot;
+      return {
+        id, name, family, note, regime: o.regime,
+        resultatNet, impot: o.impot, tauxEffectif: o.impot / baseEco * 100,
+        tresoDistrib: o.tresoDistrib != null ? o.tresoDistrib : resultatNet,
+        effetRevente: o.effetRevente, effetLabel: o.effetLabel
+      };
+    }
+
+    // Nom propre — foncier nu : meilleur de micro / réel
+    const impMicro = loyerEncaisse * (1 - H.microFoncier.val / 100);
+    const impReel = Math.max(0, loyerEncaisse - chargesDeductibles - am.interets1 - assuranceAn);
+    const useReel = impReel <= impMicro;
+    const foncier = pack("foncier", "Nom propre — foncier nu", "ir",
+      (useReel ? "Régime réel" : "Micro-foncier (abatt. 30 %)") + " · IR + PS",
+      { impot: (useReel ? impReel : impMicro) * (tmi + ps), regime: "reel",
+        effetRevente: 0, effetLabel: "Aucun amortissement à réintégrer" });
+
+    // Nom propre — LMNP réel
+    const lmnpImp = Math.max(0, loyerEncaisse - chargesDeductibles - am.interets1 - assuranceAn - amortBatiAn - amortMobilierAn);
+    const amortCumul10 = Math.min(amortBatiAn * 10 + amortMobilierAn * 7, baseAmortBati + I.mobilier);
+    const lmnp = pack("lmnp", "Nom propre — LMNP réel", "ir",
+      "Amortissement " + fmtEuro(amortBatiAn + amortMobilierAn) + "/an · IR + PS",
+      { impot: lmnpImp * (tmi + ps), regime: "lmnp",
+        effetRevente: -(amortCumul10 * 0.30), effetLabel: "Réintégration des amortissements (PV)" });
+
+    // SCI à l'IR — transparente (réel foncier au niveau des associés)
+    const sciIr = pack("sci-ir", "SCI à l'IR", "ir",
+      "Transparente · réel foncier chez les associés",
+      { impot: impReel * (tmi + ps), regime: "reel",
+        effetRevente: 0, effetLabel: "Plus-value des particuliers" });
+
+    // SCI à l'IS
+    const sciIsRes = Math.max(0, loyerEncaisse - chargesDeductibles - am.interets1 - assuranceAn - amortBatiAn - amortMobilierAn);
+    const sciIsImp = sciIsRes <= 42500 ? sciIsRes * (H.isReduit.val / 100)
+                   : 42500 * (H.isReduit.val / 100) + (sciIsRes - 42500) * (H.isNormal.val / 100);
+    const cfSoc = loyerEncaisse - serviceAnnuel - chargesExploit - sciIsImp;
+    const distribuable = Math.max(0, sciIsRes - sciIsImp);
+    const pvProBase = appreciation + amortBatiAn * 10;
+    const sciIs = pack("sci-is", "SCI à l'IS", "is",
+      "IS " + H.isReduit.val + " % / " + H.isNormal.val + " % · distribution flat tax",
+      { impot: sciIsImp, regime: "sci-is",
+        tresoDistrib: cfSoc - distribuable * (H.flatTax.val / 100),
+        effetRevente: -(pvProBase * 0.25), effetLabel: "PV pro · IS sur " + fmtK(pvProBase) });
+
+    const list = [foncier, lmnp, sciIr, sciIs];
+    return { mode: "b", list, coutTotal, valeur10,
+      headlineKey: "resultatNet", headlineLabel: "Cash-flow net-net / an" };
+  }
+
+  function legalStructuresRevente(I, H) {
+    const r = calcRevente(I, H);
+    const marge = r.med.margeBrute;
+    function isImpot(base) {
+      return base <= 42500 ? base * (H.isReduit.val / 100)
+        : 42500 * (H.isReduit.val / 100) + (base - 42500) * (H.isNormal.val / 100);
+    }
+    function pack(id, name, family, note, o) {
+      const impotSoc = o.impotSoc, flat = o.flat || 0;
+      const margeNette = marge - impotSoc;        // après IS (ou social+IR), avant distribution
+      const treso = margeNette - flat;            // en poche après flat tax
+      const tri = I.apport > 0 && treso > -I.apport
+        ? (Math.pow(1 + treso / I.apport, 12 / Math.max(I.dureeMois, 1)) - 1) * 100 : 0;
+      return {
+        id, name, family, note,
+        resultatNet: margeNette, impot: impotSoc + flat,
+        tauxEffectif: marge > 0 ? (impotSoc + flat) / marge * 100 : 0,
+        tresoDistrib: treso, effetRevente: tri, effetLabel: "TRI annualisé sur apport"
+      };
+    }
+    const baseIS = Math.max(0, marge);
+    const is = isImpot(baseIS);
+    const flat = Math.max(0, baseIS - is) * (H.flatTax.val / 100);
+
+    const social = baseIS * 0.35;
+    const ir = Math.max(0, baseIS - social) * (H.tmi.val / 100);
+    const bic = pack("bic-ir", "Nom propre — BIC", "ir",
+      "BIC pro · cotisations sociales + IR", { impotSoc: social + ir });
+    const sciIs = pack("sci-is", "SCI à l'IS", "is",
+      "Objet civil · adapté si revente non habituelle", { impotSoc: is, flat: flat });
+    const sasIs = pack("sas-is", "SAS / SASU à l'IS", "is",
+      "IS + flat tax · président assimilé salarié", { impotSoc: is, flat: flat });
+
+    return { mode: "a", list: [bic, sciIs, sasIs], marge, prixRevient: r.prixRevient,
+      headlineKey: "tresoDistrib", headlineLabel: "Trésorerie nette en poche" };
+  }
+
+  function legalStructures(inputs, mode, H) {
+    H = H || HYPOTHESES;
+    const d = mode === "a" ? legalStructuresRevente(inputs, H) : legalStructuresLocatif(inputs, H);
+    const key = d.headlineKey;
+    d.list.sort((a, b) => b[key] - a[key]);
+    d.bestId = d.list[0].id;
+    d.max = Math.max(...d.list.map(s => Math.abs(s[key])), 1);
+    return d;
+  }
+
+  /* ============================================================
+     HORIZON DE REVENTE — fiscalité de la plus-value par durée
+     Abattements particuliers : exonération IR à 22 ans, PS à 30 ans.
+     LMNP : réintégration des amortissements (LF 2025).
+     SCI à l'IS : plus-value professionnelle (valeur − VNC), IS + flat tax.
+     ============================================================ */
+  function abatIR(Y) { if (Y <= 5) return 0; if (Y < 22) return (Y - 5) * 6; return 100; }
+  function abatPS(Y) {
+    if (Y <= 5) return 0;
+    if (Y <= 21) return (Y - 5) * 1.65;
+    if (Y < 30) return 28 + (Y - 22) * 9;   // 22e année ≈ 28 %, puis +9 %/an
+    return 100;
+  }
+
+  function resaleTimingLocatif(I, H) {
+    const am = amortissement(I.emprunt, I.taux, I.dureeAnnees);
+    const prixAcq = I.prix + I.travaux + I.fraisNotaire;
+    const baseAmortBati = (I.prix + I.travaux) * 0.8;
+    const amortBatiAn = baseAmortBati * (H.amortBati.val / 100);
+    const amortMobAn = I.mobilier > 0 ? I.mobilier / 7 : 0;
+    const g = I.revaloBien / 100;
+    const apport = I.apport > 0 ? I.apport : Math.max(1, I.prix - I.emprunt);
+    const ps = H.ps.val / 100, ivPart = 0.19; // IR plus-value des particuliers : 19 %
+    const ls = legalStructuresLocatif(I, H).list;
+    const YEARS = 25;
+
+    function pvParticulier(valeur, Y, amortReint) {
+      const brut = Math.max(0, valeur - prixAcq);
+      let imp = brut * (1 - abatIR(Y) / 100) * ivPart + brut * (1 - abatPS(Y) / 100) * ps;
+      if (amortReint) imp += amortReint * 0.30; // amortissements réintégrés, sans abattement
+      return Math.max(0, imp);
+    }
+    function pvIS(valeur, Y, amortCumuleBati) {
+      const vnc = Math.max(0, (I.prix + I.travaux) - amortCumuleBati);
+      const pv = Math.max(0, valeur - vnc);
+      const is = pv <= 42500 ? pv * (H.isReduit.val / 100)
+        : 42500 * (H.isReduit.val / 100) + (pv - 42500) * (H.isNormal.val / 100);
+      const flat = Math.max(0, pv - is) * (H.flatTax.val / 100);
+      return is + flat;
+    }
+
+    const structures = ls.map(s => {
+      const series = []; let optimalYear = 1, optimalTri = -Infinity, optimalWealth = 0;
+      for (let Y = 1; Y <= YEARS; Y++) {
+        const valeur = I.prix * Math.pow(1 + g, Y);
+        const crd = am.crdParAn[Math.min(Y, am.crdParAn.length - 1)];
+        const cumulCF = s.resultatNet * Y;
+        const amortBatiCum = Math.min(amortBatiAn * Y, baseAmortBati);
+        const amortMobCum = Math.min(amortMobAn * Y, I.mobilier);
+        let impotPV;
+        if (s.id === "sci-is") impotPV = pvIS(valeur, Y, amortBatiCum);
+        else if (s.id === "lmnp") impotPV = pvParticulier(valeur, Y, amortBatiCum + amortMobCum);
+        else impotPV = pvParticulier(valeur, Y, 0);
+        const equity = valeur - crd - impotPV;
+        const wealth = cumulCF + equity;
+        const gainNet = wealth - apport;
+        const mult = wealth / apport;
+        const tri = mult > 0 ? (Math.pow(mult, 1 / Y) - 1) * 100 : -50;
+        series.push({ year: Y, valeur, crd, cumulCF, impotPV, equity, wealth, gainNet, tri });
+        if (tri > optimalTri) { optimalTri = tri; optimalYear = Y; optimalWealth = wealth; }
+      }
+      const milestones = [];
+      if (s.id === "foncier" || s.id === "sci-ir") {
+        milestones.push({ year: 22, label: "Exon. IR" });
+        milestones.push({ year: 30, label: "Exon. PS" });
+      } else if (s.id === "lmnp") {
+        milestones.push({ year: 22, label: "Exon. IR" });
+      }
+      const note = s.id === "sci-is"
+        ? "À l'IS, l'impôt de plus-value augmente avec la détention : les amortissements réduisent la VNC, donc la base imposable (valeur − VNC) gonfle."
+        : s.id === "lmnp"
+        ? "Cash-flow optimisé par l'amortissement, mais celui-ci est réintégré dans la plus-value à la revente (LF 2025)."
+        : "Plus-value des particuliers : abattements pour durée de détention, exonération IR à 22 ans et PS à 30 ans.";
+      return { id: s.id, name: s.name, family: s.family, regime: s.regime, series, optimalYear, optimalTri, optimalWealth, milestones, note };
+    });
+    const maxWealth = Math.max(...structures.flatMap(r => r.series.map(p => p.wealth)), 1);
+    const maxImpot = Math.max(...structures.flatMap(r => r.series.map(p => p.impotPV)), 1);
+    return { mode: "b", structures, maxWealth, maxImpot, years: YEARS, apport };
+  }
+
+  function resaleTimingRevente(I, H) {
+    const months = [6, 9, 12, 15, 18, 24, 30, 36];
+    const series = months.map(m => {
+      const r = calcRevente(Object.assign({}, I, { dureeMois: m }), H);
+      return { months: m, year: m / 12, margeNette: r.med.margeNette, tri: r.med.tri, tauxMarge: r.med.tauxMarge };
+    });
+    let opt = series[0]; series.forEach(s => { if (s.tri > opt.tri) opt = s; });
+    const maxMarge = Math.max(...series.map(s => Math.abs(s.margeNette)), 1);
+    return { mode: "a", series, optimalMonths: opt.months, optimalTri: opt.tri, optimalMarge: opt.margeNette, maxMarge };
+  }
+
+  function resaleTiming(inputs, mode, H) {
+    H = H || HYPOTHESES;
+    return mode === "a" ? resaleTimingRevente(inputs, H) : resaleTimingLocatif(inputs, H);
+  }
+
+  /* ============================================================
+     STRATÉGIE DE REMPLOI — revendre puis racheter (effet boule de neige)
+     ============================================================ */
+  function reinvestStrategy(I, H, structureId, resaleYear, nbBiens) {
+    H = H || HYPOTHESES;
+    const t = resaleTimingLocatif(I, H);
+    const s = t.structures.find(x => x.id === structureId) || t.structures[0];
+    const ry = resaleYear || s.optimalYear;
+    const pt = s.series.find(p => p.year === ry) || s.series[s.series.length - 1];
+
+    const coutTotal = I.prix + I.travaux + I.fraisNotaire + I.honoraires + I.fraisDossier + I.mobilier;
+    const apportRate = I.apport > 0 ? I.apport / coutTotal : 0.27;
+    const capitalNet = Math.max(0, pt.equity + pt.cumulCF);  // net de revente + cash-flow accumulé
+    const capaciteValeur = capitalNet / apportRate;          // valeur achetable avec le même levier
+    const nbMax = Math.max(1, Math.round(capaciteValeur / coutTotal));
+    const biens = nbBiens || nbMax;
+    const multiple = capitalNet / Math.max(1, I.apport);
+
+    // boule de neige : 2 cycles de réinvestissement (3 jalons)
+    const NB = 2;
+    const cycles = [];
+    for (let c = 0; c <= NB; c++) {
+      const patrimoine = I.apport * Math.pow(multiple, c);
+      cycles.push({ cycle: c, annee: c * ry, patrimoine,
+        parcValeur: patrimoine / apportRate, biens: Math.max(1, Math.round(patrimoine / apportRate / coutTotal)) });
+    }
+    // référence "sans remploi" : conserver un seul bien sur la même durée
+    const horizon = Math.min(NB * ry, 25);
+    const conserver = (s.series.find(p => p.year === horizon) || s.series[s.series.length - 1]).wealth;
+
+    // comparaison du timing fiscal : capital dégagé selon l'année de revente
+    const yearsOpt = Array.from(new Set([10, s.optimalYear, 22].filter(y => y >= 1 && y <= 25))).sort((a, b) => a - b);
+    const scenarios = yearsOpt.map(y => {
+      const p = s.series.find(x => x.year === y);
+      return { year: y, capital: Math.max(0, p.equity + p.cumulCF), impotPV: p.impotPV, isOptimal: y === s.optimalYear };
+    });
+
+    return {
+      structureId: s.id, name: s.name, family: s.family, optimalYear: s.optimalYear,
+      ry, capitalNet, impotPV: pt.impotPV, coutTotal, apportRate, apport: I.apport,
+      capaciteValeur, nbMax, biens, multiple, cycles, conserver, horizon, scenarios, note: s.note
+    };
+  }
+
+  /* ---------- Entrée unique ---------- */
+  function calc(inputs, mode, H) {
+    H = H || HYPOTHESES;
+    return mode === "a" ? calcRevente(inputs, H) : calcLocatif(inputs, H);
+  }
+
+  /* ---------- Valeurs par défaut (jeu d'exemple cohérent) ---------- */
+  const DEFAULTS = {
+    bien: {
+      type: "Appartement T3", surface: 58, ville: "Lyon 7e", cp: "69007",
+      etat: "Ancien rénové", dpe: "C", lots: 1, initiales: "AT", nom: "Appartement T3"
+    },
+    common: {
+      prix: 280000, travaux: 12000, fraisNotaire: 21000, honoraires: 0, fraisDossier: 1500,
+      emprunt: 230000, apport: 84500, taux: 3.5, dureeAnnees: 25, assurance: 0.13
+    },
+    locatif: {
+      loyerHC: 1760, indexationIRL: 2.0, revaloBien: 1.5, vacance: 5, gestion: 6,
+      assurancesPNO: 360, taxeFonciere: 1100, chargesNonRecup: 480, capex: 700,
+      mobilier: 8000, regime: "lmnp", revenusMensuels: 2400, chargesMenage: 760,
+      typeLocation: "Meublée"
+    },
+    revente: {
+      surface: 58, dureeMois: 12, reventeBas: 330000, reventeMed: 352000, reventeHaut: 372000,
+      taxeFonciere: 1100, chargesPortage: 2400, commercialisation: 9000
+    }
+  };
+  // inputs combinés pour chaque mode
+  function buildInputs(state, mode) {
+    const b = state.bien, c = state.common;
+    if (mode === "a") {
+      const r = state.revente;
+      return Object.assign({ surface: b.surface }, c, r);
+    }
+    const l = state.locatif;
+    return Object.assign({ surface: b.surface }, c, l);
+  }
+
+  window.Engine = {
+    HYPOTHESES, DEFAULTS, calc, calcLocatif, calcRevente,
+    stressLocatif, stressRevente, mensualite, amortissement, buildInputs,
+    legalStructures, legalStructuresLocatif, legalStructuresRevente,
+    resaleTiming, resaleTimingLocatif, resaleTimingRevente,
+    reinvestStrategy,
+    fmt: { euro: fmtEuro, signedEuro: fmtSignedEuro, k: fmtK, pct: fmtPct, num: fmtNum, NBSP }
+  };
+})();
+</script>
+
+<script type="text/babel">
+/* ============================================================
+   UI — primitives & charts partagés
+   ============================================================ */
+const { useState, useEffect, useRef, useMemo } = React;
+const F = window.Engine.fmt;
+
+/* ---------- Status bar / phone chrome ---------- */
+function StatusBar() {
+  return (
+    <div className="statusbar">
+      <span className="time mono">9:41</span>
+      <span className="icons">
+        <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#191A2C"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></g></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="#191A2C"><path d="M8.5 2.2c2.3 0 4.4.9 6 2.4l1.3-1.4C13.9 1.3 11.3.2 8.5.2S3.1 1.3 1.2 3.2L2.5 4.6C4.1 3.1 6.2 2.2 8.5 2.2z"/><circle cx="8.5" cy="9.8" r="1.8"/></svg>
+        <svg width="26" height="12" viewBox="0 0 26 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#191A2C" strokeOpacity=".4"/><rect x="2" y="2" width="17" height="8" rx="1.5" fill="#191A2C"/><rect x="23" y="3.5" width="2" height="5" rx="1" fill="#191A2C" fillOpacity=".4"/></svg>
+      </span>
+    </div>
+  );
+}
+
+function AppBar({ kicker, title, step, onBack }) {
+  return (
+    <div className="appbar">
+      {onBack && (
+        <button className="back" onClick={onBack} aria-label="Retour">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M10.5 3.5 5.5 8.5l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      )}
+      <div className="ab-titles">
+        {kicker && <div className="ab-kicker">{kicker}</div>}
+        <div className="ab-title">{title}</div>
+      </div>
+      {step && <div className="ab-step">{step}</div>}
+    </div>
+  );
+}
+
+function Steps({ total, current }) {
+  return (
+    <div className="steps">
+      {Array.from({ length: total }).map((_, i) => (
+        <i key={i} className={i === current ? "on" : (i < current ? "done" : "")} />
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Form fields ---------- */
+function NumField({ label, value, onChange, unit, lead, step, note, noteWarn }) {
+  return (
+    <div className="field">
+      <label>{label}</label>
+      <div className="input-wrap">
+        {lead && <span className="lead">{lead}</span>}
+        <input type="number" value={value} step={step || 1}
+          onChange={e => onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))}
+          onFocus={e => e.target.select()} />
+        {unit && <span className="unit">{unit}</span>}
+      </div>
+      {note && <div className={"field-note" + (noteWarn ? " warn" : "")}>{note}</div>}
+    </div>
+  );
+}
+
+function TextField({ label, value, onChange }) {
+  return (
+    <div className="field">
+      <label>{label}</label>
+      <div className="input-wrap text">
+        <input type="text" value={value} onChange={e => onChange(e.target.value)} />
+      </div>
+    </div>
+  );
+}
+
+function ChoiceField({ label, value, options, onChange }) {
+  return (
+    <div className="field">
+      <label>{label}</label>
+      <div className="seg-choice">
+        {options.map(o => (
+          <button key={o.v} className={value === o.v ? "on" : ""} onClick={() => onChange(o.v)}>{o.t}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SliderField({ label, value, onChange, min, max, step, fmt }) {
+  return (
+    <div className="field slider-field">
+      <div className="sf-top">
+        <label>{label}</label>
+        <span className="sf-val mono">{fmt ? fmt(value) : value}</span>
+      </div>
+      <input type="range" className="slider" min={min} max={max} step={step || 1} value={value}
+        onChange={e => onChange(parseFloat(e.target.value))} />
+    </div>
+  );
+}
+
+function GroupLabel({ children }) { return <div className="group-label">{children}</div>; }
+
+/* ---------- Charts ---------- */
+function Donut({ value, max, label, center, sub }) {
+  const r = 44, c = 2 * Math.PI * r;
+  const frac = Math.max(0, Math.min(1, value / max));
+  const offset = c * (1 - frac);
+  return (
+    <div className="donut-wrap">
+      <svg width="104" height="104" viewBox="0 0 104 104">
+        <circle cx="52" cy="52" r={r} fill="none" stroke="var(--track)" strokeWidth="11"/>
+        <circle cx="52" cy="52" r={r} fill="none" stroke="var(--accent)" strokeWidth="11"
+          strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset}
+          transform="rotate(-90 52 52)" style={{ transition: "stroke-dashoffset .5s ease" }}/>
+      </svg>
+      <div className="donut-center">
+        <span className="dc-val mono">{center}</span>
+        <span className="dc-cap">{sub}</span>
+      </div>
+    </div>
+  );
+}
+
+function MiniBars({ bars, tone }) {
+  return (
+    <div className="minibars">
+      {bars.map((h, i) => (
+        <span key={i} style={{ height: (h * 100) + "%", background: i === bars.length - 1 ? `var(--${tone})` : (h > 0.6 ? `var(--${tone})` : "var(--track)") }} />
+      ))}
+    </div>
+  );
+}
+
+function Projection({ valeur, crd }) {
+  // normalize to viewbox 320x140 (y plot 28..118)
+  const W = 320, H = 140, x0 = 8, x1 = 312, yTop = 26, yBot = 118;
+  const allMax = Math.max(...valeur, ...crd, 1);
+  const n = valeur.length;
+  const px = i => x0 + (x1 - x0) * (i / (n - 1));
+  const py = v => yBot - (yBot - yTop) * (v / allMax);
+  const valPts = valeur.map((v, i) => `${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(" ");
+  const crdPts = crd.map((v, i) => `${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(" ");
+  const area = `${px(0)},${py(valeur[0])} ` + valeur.map((v, i) => `${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(" ") + ` ${x1},${yBot} ${x0},${yBot}`;
+  return (
+    <svg width="100%" viewBox="0 0 320 140" style={{ display: "block", marginTop: 12 }} preserveAspectRatio="none">
+      {[40, 79, 118].map(y => <line key={y} x1="8" y1={y} x2="312" y2={y} stroke="var(--track)" strokeWidth="1"/>)}
+      <polygon points={area} fill="var(--accent)" fillOpacity="0.10"/>
+      <polyline points={valPts} fill="none" stroke="var(--accent)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+      <polyline points={crdPts} fill="none" stroke="var(--teal)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="2 5"/>
+    </svg>
+  );
+}
+
+/* ---------- KPI card ---------- */
+function Kpi({ label, value, foot, tone, small }) {
+  return (
+    <div className={"card" + (tone ? " kpi-" + tone : "")} style={small ? { padding: "13px 12px" } : null}>
+      <div className="kpi-label" dangerouslySetInnerHTML={{ __html: label }} />
+      <div className="kpi-value mono">{value}</div>
+      {foot && <div className="kpi-foot">{foot}</div>}
+    </div>
+  );
+}
+
+/* ---------- Disclaimer ---------- */
+function Disclaimer() {
+  return <div className="disclaimer">Simulation d'aide à la décision, ne constitue pas un conseil fiscal / juridique / en investissement.</div>;
+}
+
+/* ---------- Hypothesis chip + edit sheet ---------- */
+function HypoChip({ h, onEdit }) {
+  return (
+    <div className={"hypo-chip" + (h.warn ? " warn" : "")} onClick={onEdit}>
+      <span className="hc-val">{h.label.includes("sociaux") ? "PS" : h.label} {F.num(h.val, h.val % 1 === 0 ? 0 : 1)} % · {h.src}</span>
+      <span className="hc-edit">modifier</span>
+    </div>
+  );
+}
+
+function HypoSheet({ hkey, H, onChange, onClose }) {
+  const h = H[hkey];
+  const [v, setV] = useState(h.val);
+  return (
+    <div className="sheet-backdrop" onClick={onClose}>
+      <div className="sheet" onClick={e => e.stopPropagation()}>
+        <div className="sheet-grab" />
+        <h3>{h.label}</h3>
+        <p className="sub">Valeur par défaut sourcée et datée. Vous pouvez l'ajuster ; la modification recalcule tous les résultats.</p>
+        <div className="src-pill">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.6" stroke="currentColor" strokeWidth="1"/><path d="M5.5 3.2v3M5.5 7.6v.3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+          Source · {h.src}
+        </div>
+        <SliderField label="Valeur retenue" value={v} onChange={setV} min={0} max={h.val * 2.2 || 40} step={0.1} fmt={x => F.num(x, 1) + " %"} />
+        {h.warn && <div className="field-note warn" style={{ marginBottom: 14 }}>⚠ {h.note} Recommandation : faire valider par un expert-comptable / avocat fiscaliste.</div>}
+        <button className="btn btn-primary" onClick={() => { onChange(hkey, v); onClose(); }}>Appliquer</button>
+        <button className="btn btn-secondary" style={{ marginTop: 8 }} onClick={() => { onChange(hkey, h.val); onClose(); }}>Réinitialiser à {F.num(h.val, h.val % 1 === 0 ? 0 : 1)} %</button>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, {
+  StatusBar, AppBar, Steps, NumField, TextField, ChoiceField, SliderField, GroupLabel,
+  Donut, MiniBars, Projection, Kpi, Disclaimer, HypoChip, HypoSheet
+});
+</script>
+
+<script type="text/babel">
+/* ============================================================
+   ÉCRANS — Sélecteur & Saisies
+   ============================================================ */
+
+/* ---------- 0. Sélecteur de mode ---------- */
+function SelectorScreen({ mode, setMode, go }) {
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <div className="body sel-flow page" style={{ paddingTop: 8 }}>
+        <div className="s1-head">
+          <div className="overline">Nouvelle analyse</div>
+          <h1>Quelle est votre stratégie&nbsp;?</h1>
+        </div>
+        <div className="reassure">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#5B5BF0" strokeWidth="1.4"/><path d="M5.3 8.1l1.8 1.8 3.6-3.8" stroke="#5B5BF0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <p>Vous pourrez basculer de mode à tout moment&nbsp;; vos données communes sont conservées.</p>
+        </div>
+
+        <div className={"card lg mode-card" + (mode === "a" ? " active" : "")} onClick={() => setMode("a")}>
+          {mode === "a" && <div className="mc-flag">Sélectionné</div>}
+          <div className="mc-top">
+            <div className="mode-badge">A</div>
+            <div className="mc-titles">
+              <div className="mc-name">Achat-Revente</div>
+              <div className="mc-horizon">Marchand de biens · 6–24 mois</div>
+            </div>
+          </div>
+          <p className="mc-pitch">Marge brute sur prix de revient, portage court&nbsp;: la revente est la sortie de l'opération.</p>
+          <div className="chip-row">
+            <span className="chip">Marge ≥ 20 %</span><span className="chip">TRI</span><span className="chip">Prix de revient</span>
+          </div>
+        </div>
+
+        <div className={"card lg mode-card" + (mode === "b" ? " active" : "")} onClick={() => setMode("b")}>
+          {mode === "b" && <div className="mc-flag">Sélectionné</div>}
+          <div className="mc-top">
+            <div className="mode-badge">B</div>
+            <div className="mc-titles">
+              <div className="mc-name">Locatif</div>
+              <div className="mc-horizon">Détention · projection 10 ans</div>
+            </div>
+          </div>
+          <p className="mc-pitch">Rendement, cash-flow et DSCR&nbsp;; fiscalité récurrente sur un horizon long de détention.</p>
+          <div className="chip-row">
+            <span className="chip">Cash-flow</span><span className="chip">DSCR</span><span className="chip">Rendement net-net</span>
+          </div>
+        </div>
+        <Disclaimer />
+      </div>
+      <div className="footer-cta">
+        <button className="btn btn-primary" onClick={() => go("common")}>
+          Continuer en mode {mode === "a" ? "Achat-Revente" : "Locatif"}&nbsp;&nbsp;→
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 1. Saisie tronc commun ---------- */
+function CommonScreen({ state, update, mode, go, back }) {
+  const b = state.bien, c = state.common;
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker={"Mode " + (mode === "a" ? "A · Achat-Revente" : "B · Locatif")} title="Données communes" step="1 / 2" onBack={back} />
+      <Steps total={2} current={0} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <GroupLabel>Identité du bien</GroupLabel>
+        <TextField label="Nom du projet" value={b.nom} onChange={v => update("bien", { nom: v })} />
+        <ChoiceField label="Type de bien" value={b.type} onChange={v => update("bien", { type: v })}
+          options={[{ v: "Appartement T3", t: "Appart." }, { v: "Maison", t: "Maison" }, { v: "Immeuble", t: "Immeuble" }]} />
+        <div className="field-row">
+          <NumField label="Surface" value={b.surface} unit="m²" onChange={v => update("bien", { surface: v })} />
+          <NumField label="Nombre de lots" value={b.lots} onChange={v => update("bien", { lots: v })} />
+        </div>
+        <div className="field-row">
+          <TextField label="Ville" value={b.ville} onChange={v => update("bien", { ville: v })} />
+          <ChoiceField label="DPE" value={b.dpe} onChange={v => update("bien", { dpe: v })}
+            options={[{ v: "B", t: "B" }, { v: "C", t: "C" }, { v: "D", t: "D" }]} />
+        </div>
+
+        <GroupLabel>Données d'achat</GroupLabel>
+        <NumField label="Prix net vendeur" value={c.prix} lead="€" onChange={v => update("common", { prix: v })} step={1000} />
+        <div className="field-row">
+          <NumField label="Travaux" value={c.travaux} lead="€" onChange={v => update("common", { travaux: v })} step={500} />
+          <NumField label={mode === "a" ? "Droits (MdB)" : "Frais de notaire"} value={c.fraisNotaire} lead="€" onChange={v => update("common", { fraisNotaire: v })} step={500} />
+        </div>
+
+        <GroupLabel>Structure de financement</GroupLabel>
+        <div className="field-row">
+          <NumField label="Montant emprunté" value={c.emprunt} lead="€" onChange={v => update("common", { emprunt: v })} step={1000} />
+          <NumField label="Apport" value={c.apport} lead="€" onChange={v => update("common", { apport: v })} step={1000} />
+        </div>
+        <SliderField label="Taux nominal" value={c.taux} min={0} max={7} step={0.05} fmt={x => F.num(x, 2) + " %"} onChange={v => update("common", { taux: v })} />
+        <div className="field-row">
+          <NumField label="Durée" value={c.dureeAnnees} unit="ans" onChange={v => update("common", { dureeAnnees: v })} />
+          <NumField label="Assurance" value={c.assurance} unit="%" step={0.01} onChange={v => update("common", { assurance: v })} />
+        </div>
+        <Disclaimer />
+      </div>
+      <div className="footer-cta">
+        <button className="btn btn-primary" onClick={() => go(mode === "a" ? "inputA" : "inputB")}>Champs spécifiques&nbsp;&nbsp;→</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 2A. Saisie Achat-Revente ---------- */
+function InputAScreen({ state, update, go, back }) {
+  const r = state.revente;
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker="Mode A · Achat-Revente" title="Revente & portage" step="2 / 2" onBack={back} />
+      <Steps total={2} current={1} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <GroupLabel>Prix de revente cible</GroupLabel>
+        <div className="field-row three">
+          <NumField label="Bas" value={r.reventeBas} lead="€" step={1000} onChange={v => update("revente", { reventeBas: v })} />
+          <NumField label="Médian" value={r.reventeMed} lead="€" step={1000} onChange={v => update("revente", { reventeMed: v })} />
+          <NumField label="Haut" value={r.reventeHaut} lead="€" step={1000} onChange={v => update("revente", { reventeHaut: v })} />
+        </div>
+
+        <GroupLabel>Portage</GroupLabel>
+        <SliderField label="Durée de portage" value={r.dureeMois} min={3} max={36} step={1} fmt={x => x + " mois"} onChange={v => update("revente", { dureeMois: v })} />
+        <div className="field-row">
+          <NumField label="Taxe foncière / an" value={r.taxeFonciere} lead="€" onChange={v => update("revente", { taxeFonciere: v })} />
+          <NumField label="Charges portage" value={r.chargesPortage} lead="€" note="hors intérêts" onChange={v => update("revente", { chargesPortage: v })} />
+        </div>
+
+        <GroupLabel>Revente</GroupLabel>
+        <NumField label="Frais de commercialisation" value={r.commercialisation} lead="€" step={500}
+          note="Agence, home staging, diagnostics, honoraires" onChange={v => update("revente", { commercialisation: v })} />
+
+        <div className="hypo-row" style={{ marginTop: 16 }}>
+          <div className="hypo-chip warn">
+            <span className="hc-val">Droits MdB 0,715 % · CGI 1115</span>
+            <span className="hc-edit">paramétrer</span>
+          </div>
+        </div>
+        <div className="field-note warn" style={{ margin: "0 2px" }}>Engagement de revendre dans 5 ans (2 ans par lots). À valider par un expert.</div>
+        <Disclaimer />
+      </div>
+      <div className="footer-cta">
+        <button className="btn btn-primary" onClick={() => go("dashA")}>Analyser l'opération&nbsp;&nbsp;→</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 2B. Saisie Locatif ---------- */
+function InputBScreen({ state, update, go, back }) {
+  const l = state.locatif;
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker="Mode B · Locatif" title="Loyers & charges" step="2 / 2" onBack={back} />
+      <Steps total={2} current={1} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <GroupLabel>Location</GroupLabel>
+        <ChoiceField label="Type de location" value={l.typeLocation} onChange={v => update("locatif", { typeLocation: v })}
+          options={[{ v: "Nue", t: "Nue" }, { v: "Meublée", t: "Meublée" }, { v: "Saisonnière", t: "Saison." }]} />
+        <NumField label="Loyer mensuel HC" value={l.loyerHC} lead="€" onChange={v => update("locatif", { loyerHC: v })} />
+        <div className="field-row">
+          <SliderField label="Vacance" value={l.vacance} min={0} max={20} step={0.5} fmt={x => F.num(x, 1) + " %"} onChange={v => update("locatif", { vacance: v })} />
+          <SliderField label="Frais de gestion" value={l.gestion} min={0} max={12} step={0.5} fmt={x => F.num(x, 1) + " %"} onChange={v => update("locatif", { gestion: v })} />
+        </div>
+
+        <GroupLabel>Charges annuelles</GroupLabel>
+        <div className="field-row">
+          <NumField label="Taxe foncière" value={l.taxeFonciere} lead="€" onChange={v => update("locatif", { taxeFonciere: v })} />
+          <NumField label="GLI / PNO" value={l.assurancesPNO} lead="€" onChange={v => update("locatif", { assurancesPNO: v })} />
+        </div>
+        <div className="field-row">
+          <NumField label="Charges non récup." value={l.chargesNonRecup} lead="€" onChange={v => update("locatif", { chargesNonRecup: v })} />
+          <NumField label="Provision CAPEX" value={l.capex} lead="€" onChange={v => update("locatif", { capex: v })} />
+        </div>
+        {l.typeLocation !== "Nue" && (
+          <NumField label="Mobilier" value={l.mobilier} lead="€" step={500} note="amortissable (LMNP)" onChange={v => update("locatif", { mobilier: v })} />
+        )}
+
+        <GroupLabel>Hypothèses projection</GroupLabel>
+        <div className="field-row">
+          <SliderField label="Revalo. bien / an" value={l.revaloBien} min={-2} max={5} step={0.1} fmt={x => F.num(x, 1) + " %"} onChange={v => update("locatif", { revaloBien: v })} />
+          <SliderField label="Indexation IRL" value={l.indexationIRL} min={0} max={5} step={0.1} fmt={x => F.num(x, 1) + " %"} onChange={v => update("locatif", { indexationIRL: v })} />
+        </div>
+
+        <GroupLabel>Capacité d'emprunt (ménage)</GroupLabel>
+        <div className="field-row">
+          <NumField label="Revenus nets / mois" value={l.revenusMensuels} lead="€" onChange={v => update("locatif", { revenusMensuels: v })} />
+          <NumField label="Charges / mois" value={l.chargesMenage} lead="€" onChange={v => update("locatif", { chargesMenage: v })} />
+        </div>
+        <Disclaimer />
+      </div>
+      <div className="footer-cta">
+        <button className="btn btn-primary" onClick={() => go("dashB")}>Analyser l'opération&nbsp;&nbsp;→</button>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { SelectorScreen, CommonScreen, InputAScreen, InputBScreen });
+</script>
+
+<script type="text/babel">
+/* ============================================================
+   ÉCRANS — Dashboards, Régimes, Scénarios, Rapport
+   ============================================================ */
+
+function ModeToggle({ mode, onSwitch }) {
+  return (
+    <div className="seg">
+      <button className={mode === "a" ? "on" : ""} onClick={() => onSwitch("a")}>
+        <span className="seg-title">Achat-Revente</span><span className="seg-sub">6–24 mois</span>
+      </button>
+      <button className={mode === "b" ? "on" : ""} onClick={() => onSwitch("b")}>
+        <span className="seg-title">Locatif</span><span className="seg-sub">détention 10 ans</span>
+      </button>
+    </div>
+  );
+}
+
+function DashHeader({ bien, onMenu }) {
+  return (
+    <div className="dash-header">
+      <div className="dh-titles">
+        <div className="dh-name">{bien.nom}</div>
+        <div className="dh-sub">{bien.surface} m² · {bien.ville} · DPE&nbsp;{bien.dpe}</div>
+      </div>
+      <div className="avatar">{bien.initiales}</div>
+    </div>
+  );
+}
+
+/* ---------- Dashboard B — Locatif ---------- */
+function DashBScreen({ state, mode, onSwitch, H, go, back, openHypo }) {
+  const r = useMemo(() => window.Engine.calcLocatif(window.Engine.buildInputs(state, "b"), H), [state, H]);
+  const v = r.verdict;
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <div className="body page" style={{ paddingTop: 6 }}>
+        <DashHeader bien={state.bien} />
+        <ModeToggle mode={mode} onSwitch={onSwitch} />
+
+        <div className={"verdict " + v.tone}>
+          <span className="v-dot" />
+          <span className="v-label">{v.label}</span>
+          <span className="v-value mono">{F.signedEuro(r.cfMois)}/mois</span>
+        </div>
+
+        <div className="row2 sect-gap">
+          <div className="card cf-card">
+            <div className="kpi-label">Cash-flow net-net<br/>annuel</div>
+            <div className="kpi-value mono" style={{ color: r.cfNetNetAnnuel >= 0 ? "var(--pos)" : "var(--neg)" }}>{F.signedEuro(r.cfNetNetAnnuel)}</div>
+            <MiniBars bars={r.barres} tone={r.cfNetNetAnnuel >= 0 ? "pos" : "neg"} />
+          </div>
+          <div className="card donut-card">
+            <div className="kpi-label" style={{ alignSelf: "flex-start" }}>Rendement net-net</div>
+            <Donut value={r.rdtNetNet} max={10} center={F.pct(r.rdtNetNet)} sub="net-net" />
+            <div className="donut-legend">brut <b>{F.pct(r.rdtBrut)}</b></div>
+          </div>
+        </div>
+
+        <div className="row3 sect-gap">
+          <Kpi small tone={r.seuils.dscr} label="DSCR" value={F.num(r.dscr, 2)} foot={r.dscr >= 1.2 ? "≥ 1,20 ✓" : "< 1,20"} />
+          <Kpi small tone={r.seuils.ltv} label="LTV" value={F.pct(r.ltv, 0)} foot={r.ltv <= 80 ? "favorable" : "vigilance"} />
+          <Kpi small label="Coût total" value={F.k(r.coutTotal)} foot="tous frais" />
+        </div>
+
+        <div className="card sect-gap">
+          <div className="gauge-head">
+            <span className="card-title">Taux d'endettement</span>
+            <span className="g-val mono">{F.pct(r.endettement, 0)}</span>
+          </div>
+          <div className="gauge-track">
+            <div className={"gauge-fill " + r.seuils.endettement} style={{ width: Math.min(r.endettement, 100) + "%" }} />
+            <div className="gauge-marker" data-label="35 %" style={{ left: "35%" }} />
+          </div>
+          <div className="gauge-foot">
+            <span>Reste à vivre <b>{F.euro(r.resteAVivre)}</b></span>
+            <span>plafond HCSF <b>35 %</b></span>
+          </div>
+        </div>
+
+        <div className="card lg sect-gap">
+          <span className="card-title">Projection 10 ans</span>
+          <div className="card-sub">Valeur du bien vs capital restant dû</div>
+          <Projection valeur={r.valeur} crd={r.crd} />
+          <div className="proj-legend">
+            <span><span className="lg-swatch" style={{ borderColor: "var(--accent)" }} />Valeur du bien</span>
+            <span><span className="lg-swatch lg-dash" style={{ borderColor: "var(--teal)" }} />Capital restant dû</span>
+          </div>
+        </div>
+
+        <div className="row2 sect-gap">
+          <button className="btn btn-secondary" onClick={() => go("structures")} style={{ fontSize: 13 }}>Structures juridiques</button>
+          <button className="btn btn-secondary" onClick={() => go("scenarios")} style={{ fontSize: 13 }}>Scénarios & stress</button>
+        </div>
+
+        <div className="hypo-row">
+          <HypoChip h={H.ps} onEdit={() => openHypo("ps")} />
+          <p className="hypo-note">Taux à confirmer par un expert (hausse CSG 2026).</p>
+        </div>
+        <Disclaimer />
+      </div>
+      <div className="footer-cta">
+        <button className="btn btn-primary" onClick={() => go("report")}>Générer le dossier bancaire&nbsp;&nbsp;→</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Dashboard A — Achat-Revente ---------- */
+function DashAScreen({ state, mode, onSwitch, H, go, back, openHypo }) {
+  const r = useMemo(() => window.Engine.calcRevente(window.Engine.buildInputs(state, "a"), H), [state, H]);
+  const v = r.verdict, med = r.med;
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <div className="body page" style={{ paddingTop: 6 }}>
+        <DashHeader bien={state.bien} />
+        <ModeToggle mode={mode} onSwitch={onSwitch} />
+
+        <div className={"verdict " + v.tone}>
+          <span className="v-dot" />
+          <span className="v-label">{v.label}</span>
+          <span className="v-value mono">{F.pct(med.tauxMarge, 1)}</span>
+        </div>
+
+        <div className="row2 sect-gap">
+          <div className="card">
+            <div className="kpi-label">Marge nette<br/>(scénario médian)</div>
+            <div className="kpi-value mono" style={{ color: med.margeNette >= 0 ? "var(--pos)" : "var(--neg)" }}>{F.signedEuro(med.margeNette)}</div>
+            <div className="kpi-foot">brut {F.euro(med.margeBrute)}</div>
+          </div>
+          <div className="card donut-card">
+            <div className="kpi-label" style={{ alignSelf: "flex-start" }}>Taux de marge</div>
+            <Donut value={med.tauxMarge} max={40} center={F.pct(med.tauxMarge, 0)} sub="brute" />
+            <div className="donut-legend">cible <b>≥ 20 %</b></div>
+          </div>
+        </div>
+
+        <div className="row3 sect-gap">
+          <Kpi small label="Prix de revient" value={F.k(r.prixRevient)} foot="tous frais" />
+          <Kpi small tone="pos" label="TRI annualisé" value={F.pct(med.tri, 1)} foot="sur apport" />
+          <Kpi small label="ROI" value={F.pct(med.roi, 0)} foot="fonds propres" />
+        </div>
+
+        <div className="card kv-card sect-gap">
+          <span className="card-title">Décomposition du prix de revient</span>
+          <div style={{ marginTop: 8 }}>
+            <div className="kv"><span className="k">Prix d'achat</span><span className="v">{F.euro(state.common.prix)}</span></div>
+            <div className="kv"><span className="k">Droits MdB (0,715 %)</span><span className="v">{F.euro(r.droits)}</span></div>
+            <div className="kv"><span className="k">Travaux</span><span className="v">{F.euro(state.common.travaux)}</span></div>
+            <div className="kv"><span className="k">Frais de portage</span><span className="v">{F.euro(r.fraisPortage)}</span></div>
+            <div className="kv"><span className="k">Commercialisation</span><span className="v">{F.euro(state.revente.commercialisation)}</span></div>
+          </div>
+        </div>
+
+        <div className="card sect-gap">
+          <span className="card-title">Scénarios de revente</span>
+          <div className="card-sub" style={{ marginBottom: 12 }}>Marge nette selon le prix de sortie</div>
+          <div className="scen-tri">
+            <div className="scen-cell"><div className="scen-cap">Bas</div><div className="scen-big mono" style={{ color: r.bas.margeNette >= 0 ? "var(--ink)" : "var(--neg)" }}>{F.signedEuro(r.bas.margeNette)}</div><div className="scen-small">{F.pct(r.bas.tauxMarge, 0)}</div></div>
+            <div className="scen-cell med"><div className="scen-cap">Médian</div><div className="scen-big mono">{F.signedEuro(r.med.margeNette)}</div><div className="scen-small">{F.pct(r.med.tauxMarge, 0)}</div></div>
+            <div className="scen-cell"><div className="scen-cap">Haut</div><div className="scen-big mono">{F.signedEuro(r.haut.margeNette)}</div><div className="scen-small">{F.pct(r.haut.tauxMarge, 0)}</div></div>
+          </div>
+          <div className="gauge-foot" style={{ marginTop: 12 }}>
+            <span>Point mort <b>{F.k(r.pointMortNul)}</b></span>
+            <span>marge 20 % à <b>{F.k(r.pointMort20)}</b></span>
+          </div>
+        </div>
+
+        <div className="card kv-card sect-gap">
+          <span className="card-title">Crédibilité marché</span>
+          <div style={{ marginTop: 8 }}>
+            <div className="kv"><span className="k">Prix revente / m²</span><span className="v">{F.euro(r.prixM2Revente)}</span></div>
+            <div className="kv"><span className="k">Mensualité crédit</span><span className="v">{F.euro(r.mensualite)}</span></div>
+          </div>
+        </div>
+
+        <div className="row2 sect-gap">
+          <button className="btn btn-secondary" onClick={() => go("structures")} style={{ fontSize: 13 }}>Structures juridiques</button>
+          <button className="btn btn-secondary" onClick={() => go("scenarios")} style={{ fontSize: 13 }}>Stress tests</button>
+        </div>
+
+        <div className="hypo-row">
+          <div className="hypo-chip warn" onClick={() => openHypo("droitsMdB")}>
+            <span className="hc-val">Droits MdB {F.num(H.droitsMdB.val, 3)} % · {H.droitsMdB.src}</span>
+            <span className="hc-edit">modifier</span>
+          </div>
+          <p className="hypo-note">Engagement 5 ans (art. 1115 CGI).</p>
+        </div>
+        <Disclaimer />
+      </div>
+      <div className="footer-cta">
+        <button className="btn btn-primary" onClick={() => go("report")}>Générer le dossier bancaire&nbsp;&nbsp;→</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Structures juridiques (Mode A & B) ---------- */
+const REGIME_LABELS = {
+  micro: { name: "Micro-foncier" }, reel: { name: "Réel foncier" },
+  lmnp: { name: "LMNP réel" }, "sci-is": { name: "SCI à l'IS" }
+};
+function StructuresScreen({ state, update, mode, H, back, toast, go }) {
+  const isA = mode === "a";
+  const d = useMemo(() => window.Engine.legalStructures(window.Engine.buildInputs(state, mode), mode, H), [state, H, mode]);
+  const [open, setOpen] = useState(d.bestId);
+  const key = d.headlineKey;
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker={"Mode " + (isA ? "A · Achat-Revente" : "B · Locatif")} title="Structures juridiques" onBack={back} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <p className="screen-intro">Même opération comparée sous chaque forme de détention. Classement par {d.headlineLabel.toLowerCase()}.</p>
+
+        <div className="card sect-gap">
+          <span className="card-title">{d.headlineLabel}</span>
+          <div className="cmp-list">
+            {d.list.map(s => {
+              const v = s[key], tone = v >= 0 ? "pos" : "neg";
+              return (
+                <div className="cmp-row" key={s.id}>
+                  <span className="cmp-name">{s.name.replace("Nom propre — ", "")}</span>
+                  <div className="cmp-bar"><div className={"cmp-fill " + tone} style={{ width: (Math.abs(v) / d.max * 100) + "%" }} /></div>
+                  <span className={"cmp-val mono " + tone}>{F.signedEuro(v)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {d.list.map(s => {
+          const isOpen = open === s.id, isBest = s.id === d.bestId;
+          const isSel = !isA && state.locatif.structure === s.id;
+          return (
+            <div key={s.id} className={"card struct-card" + (isOpen ? " open" : "") + (isSel ? " sel" : (isBest ? " best" : ""))}
+              onClick={() => setOpen(isOpen ? null : s.id)}>
+              <div className="struct-head">
+                <span className={"fam-chip " + s.family}>{s.family === "is" ? "IS" : "IR"}</span>
+                <div className="struct-titles">
+                  <div className="struct-name">{s.name}{isBest && <span className="opt-tag">Optimal</span>}{isSel && !isBest && <span className="opt-tag" style={{ color: "var(--accent)", background: "var(--accent-soft)" }}>Retenu</span>}</div>
+                  <div className="struct-note">{s.note}</div>
+                </div>
+                <div className="struct-right">
+                  <div className={"struct-val mono " + (s[key] >= 0 ? "pos" : "neg")}>{F.signedEuro(s[key])}</div>
+                  <div className="struct-tax mono">imp. {F.pct(s.tauxEffectif, 0)}</div>
+                </div>
+                <svg className={"chev" + (isOpen ? " up" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3.5 5.5 7 9l3.5-3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+              {isOpen && (
+                <div className="struct-detail">
+                  <div className="sd-grid">
+                    <div className="sd-cell"><div className="k">{isA ? "Marge nette" : "Résultat net / an"}</div><div className="v mono">{F.signedEuro(s.resultatNet)}</div></div>
+                    <div className="sd-cell"><div className="k">Impôt {isA ? "total" : "annuel"} (IR/IS + PS)</div><div className="v mono">{F.euro(s.impot)}</div></div>
+                    <div className="sd-cell"><div className="k">Taux effectif</div><div className="v mono">{F.pct(s.tauxEffectif, 1)}</div></div>
+                    <div className="sd-cell"><div className="k">Tréso. après distribution</div><div className="v mono">{F.signedEuro(s.tresoDistrib)}</div></div>
+                    <div className="sd-cell wide"><div className="k">{s.effetLabel}</div><div className={"v mono" + (!isA && s.effetRevente < 0 ? " neg" : "")}>{isA ? F.pct(s.effetRevente, 1) : (s.effetRevente === 0 ? "Aucun" : F.signedEuro(s.effetRevente))}</div></div>
+                  </div>
+                  {!isA && (
+                    <button className="btn btn-secondary" style={{ marginTop: 13, fontSize: 13 }}
+                      onClick={(e) => { e.stopPropagation(); update("locatif", { regime: s.regime, structure: s.id }); toast && toast("Structure retenue : " + s.name); }}>
+                      {isSel ? "✓ Structure retenue" : "Retenir cette structure"}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        <button className="btn btn-primary" style={{ marginTop: 4 }} onClick={() => go("timing")}>Quand revendre ? · Horizon optimal&nbsp;&nbsp;→</button>
+
+        <div className="hypo-row" style={{ marginTop: 14 }}>
+          <div className="hypo-chip warn"><span className="hc-val">{isA ? "TVA sur marge · CGI 268" : "Statut « Jeanbrun » LF2026 art. 47"}</span><span className="hc-edit">à confirmer</span></div>
+        </div>
+        <Disclaimer />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Scénarios & stress tests ---------- */
+function ScenariosScreen({ state, mode, H, back }) {
+  const isA = mode === "a";
+  const data = useMemo(() => isA
+    ? window.Engine.stressRevente(window.Engine.buildInputs(state, "a"), H)
+    : window.Engine.stressLocatif(window.Engine.buildInputs(state, "b"), H), [state, H, mode]);
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker={"Mode " + (isA ? "A" : "B")} title="Scénarios & stress" onBack={back} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <div className="card sect-gap">
+          <span className="card-title">Scénario de référence</span>
+          <div className="kpi-value mono" style={{ fontSize: 27, marginTop: 8, color: isA ? (data.base.med.margeNette >= 0 ? "var(--pos)" : "var(--neg)") : (data.base.cfNetNetAnnuel >= 0 ? "var(--pos)" : "var(--neg)") }}>
+            {isA ? F.signedEuro(data.base.med.margeNette) : F.signedEuro(data.base.cfNetNetAnnuel)}
+          </div>
+          <div className="kpi-foot">{isA ? "marge nette médiane" : "cash-flow net-net annuel"}</div>
+        </div>
+
+        <div className="card">
+          <span className="card-title">Tests de sensibilité</span>
+          <div style={{ marginTop: 6 }}>
+            {data.rows.map((row, i) => (
+              <div key={i} className="stress-row">
+                <div className={"sr-icon " + row.seuil}>{row.seuil === "pos" ? "✓" : (row.seuil === "warn" ? "!" : "✕")}</div>
+                <div className="sr-mid">
+                  <div className="sr-label">{row.label}</div>
+                  <div className="sr-delta mono">{F.signedEuro(row.delta)} vs réf.</div>
+                </div>
+                <div className="sr-val">
+                  <div className="sr-main mono">{isA ? F.signedEuro(row.marge) : F.signedEuro(row.cf)}</div>
+                  <div className="sr-sub mono">{isA ? F.pct(row.taux, 0) : "DSCR " + F.num(row.dscr, 2)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="field-note" style={{ margin: "12px 2px" }}>
+          {isA ? "Stress par défaut Mode A : revente −10 %, travaux +15 %, portage +6 mois."
+               : "Stress par défaut Mode B : taux +1 pt, vacance +5 pts, loyer −1 mois."}
+        </p>
+        <Disclaimer />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Aperçu dossier bancaire ---------- */
+function ReportScreen({ state, mode, H, back, toast }) {
+  const isA = mode === "a";
+  const r = useMemo(() => window.Engine.calc(window.Engine.buildInputs(state, mode), mode, H), [state, H, mode]);
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker={"Mode " + (isA ? "A · Achat-Revente" : "B · Locatif")} title="Dossier bancaire" onBack={back} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <div className="dl-bar">
+          <div className="dl-ic">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2v9m0 0 3.2-3.2M9 11 5.8 7.8M3 13.5V15a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1.5" stroke="#5B5BF0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </div>
+          <div className="dl-tx"><div className="t">Dossier {isA ? "Achat-Revente" : "Locatif"}</div><div className="s">PDF A4 · {isA ? "6" : "4"} pages · hypothèses sourcées</div></div>
+        </div>
+
+        <div className="report-pages">
+          <div className="rp-page" data-page="P.1">
+            <div className="rp-brand"><div className="rp-logo" /><div><div className="rp-brand-name">{state.bien.nom}</div><div className="rp-brand-sub">{state.bien.surface} m² · {state.bien.ville} · DPE {state.bien.dpe}</div></div></div>
+            <div className="rp-h">Résumé exécutif</div>
+            {isA ? (
+              <div className="rp-kpis">
+                <div className="rp-kpi"><div className="k">Prix revient</div><div className="v">{F.k(r.prixRevient)}</div></div>
+                <div className="rp-kpi"><div className="k">Marge nette</div><div className="v">{F.signedEuro(r.med.margeNette)}</div></div>
+                <div className="rp-kpi"><div className="k">Taux marge</div><div className="v">{F.pct(r.med.tauxMarge, 0)}</div></div>
+                <div className="rp-kpi"><div className="k">TRI</div><div className="v">{F.pct(r.med.tri, 0)}</div></div>
+                <div className="rp-kpi"><div className="k">ROI</div><div className="v">{F.pct(r.med.roi, 0)}</div></div>
+                <div className="rp-kpi"><div className="k">Portage</div><div className="v">{state.revente.dureeMois} m</div></div>
+              </div>
+            ) : (
+              <div className="rp-kpis">
+                <div className="rp-kpi"><div className="k">Coût total</div><div className="v">{F.k(r.coutTotal)}</div></div>
+                <div className="rp-kpi"><div className="k">CF net-net</div><div className="v">{F.signedEuro(r.cfNetNetAnnuel)}</div></div>
+                <div className="rp-kpi"><div className="k">Rdt net</div><div className="v">{F.pct(r.rdtNet)}</div></div>
+                <div className="rp-kpi"><div className="k">DSCR</div><div className="v">{F.num(r.dscr, 2)}</div></div>
+                <div className="rp-kpi"><div className="k">LTV</div><div className="v">{F.pct(r.ltv, 0)}</div></div>
+                <div className="rp-kpi"><div className="k">Endett.</div><div className="v">{F.pct(r.endettement, 0)}</div></div>
+              </div>
+            )}
+          </div>
+
+          <div className="rp-page" data-page="P.2">
+            <div className="rp-h">Plan de financement · Besoins / Ressources</div>
+            <div className="rp-line"><span className="l">Prix d'acquisition</span><span className="v">{F.euro(state.common.prix)}</span></div>
+            <div className="rp-line"><span className="l">Travaux</span><span className="v">{F.euro(state.common.travaux)}</span></div>
+            <div className="rp-line"><span className="l">Frais & droits</span><span className="v">{F.euro(state.common.fraisNotaire)}</span></div>
+            <div className="rp-line total"><span className="l">Total besoins</span><span className="v">{F.euro(isA ? r.prixRevient : r.coutTotal)}</span></div>
+            <div className="rp-line" style={{ marginTop: 10 }}><span className="l">Emprunt</span><span className="v">{F.euro(state.common.emprunt)}</span></div>
+            <div className="rp-line"><span className="l">Apport</span><span className="v">{F.euro(state.common.apport)}</span></div>
+          </div>
+
+          <div className="rp-page" data-page={isA ? "P.3" : "P.3"}>
+            <div className="rp-h">{isA ? "Plan de trésorerie · portage" : "Prévisionnel 10 ans"}</div>
+            <Projection valeur={isA ? [state.revente.reventeBas, state.revente.reventeMed, state.revente.reventeHaut, state.revente.reventeHaut] : r.valeur} crd={isA ? [r.prixRevient, r.prixRevient, r.prixRevient, r.prixRevient] : r.crd} />
+            <div className="proj-legend"><span><span className="lg-swatch" style={{ borderColor: "var(--accent)" }} />{isA ? "Prix de revente" : "Valeur du bien"}</span><span><span className="lg-swatch lg-dash" style={{ borderColor: "var(--teal)" }} />{isA ? "Prix de revient" : "Capital restant dû"}</span></div>
+          </div>
+
+          <div className="rp-page" data-page="Annexe">
+            <div className="rp-h">{isA ? "Scénarios de revente" : "Comparatif multi-régimes"}</div>
+            {isA ? (
+              <React.Fragment>
+                <div className="rp-line"><span className="l">Scénario bas</span><span className="v">{F.signedEuro(r.bas.margeNette)}</span></div>
+                <div className="rp-line"><span className="l">Scénario médian</span><span className="v">{F.signedEuro(r.med.margeNette)}</span></div>
+                <div className="rp-line"><span className="l">Scénario haut</span><span className="v">{F.signedEuro(r.haut.margeNette)}</span></div>
+              </React.Fragment>
+            ) : (
+              r.regimes.map(reg => (
+                <div key={reg.regime} className="rp-line"><span className="l">{REGIME_LABELS[reg.regime].name}</span><span className="v">{F.signedEuro(reg.cfNetNet)}</span></div>
+              ))
+            )}
+            <div className="rp-disclaimer">Simulation d'aide à la décision, ne constitue pas un conseil fiscal / juridique / en investissement. Hypothèses fiscales sourcées et datées, à confirmer par un expert-comptable / avocat fiscaliste.</div>
+          </div>
+        </div>
+        <div style={{ height: 8 }} />
+      </div>
+      <div className="footer-cta dual">
+        <button className="btn btn-secondary" onClick={() => toast("Aperçu — export PDF côté serveur (headless Chrome)")}>Aperçu</button>
+        <button className="btn btn-primary" onClick={() => toast("Génération du PDF A4… (démo)")}>Exporter le PDF</button>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { DashAScreen, DashBScreen, StructuresScreen, ScenariosScreen, ReportScreen, ModeToggle });
+</script>
+
+<script type="text/babel">
+/* ============================================================
+   ÉCRAN — Horizon de revente (quand revendre pour optimiser la fiscalité)
+   ============================================================ */
+
+/* Courbe richesse nette + impôt PV sur 25 ans, avec marqueur optimal + jalons */
+function TimingChartB({ serie, maxWealth, maxImpot, optimalYear, milestones }) {
+  const W = 320, x0 = 10, x1 = 310, yTop = 16, yBot = 104;
+  const n = serie.length;
+  const px = y => x0 + (x1 - x0) * ((y - 1) / (n - 1));
+  const pyW = v => yBot - (yBot - yTop) * (Math.max(0, v) / maxWealth);
+  const pyI = v => yBot - (yBot - yTop) * (v / maxImpot);
+  const wPts = serie.map(p => `${px(p.year).toFixed(1)},${pyW(p.wealth).toFixed(1)}`).join(" ");
+  const iPts = serie.map(p => `${px(p.year).toFixed(1)},${pyI(p.impotPV).toFixed(1)}`).join(" ");
+  const area = `${px(1)},${yBot} ` + wPts + ` ${px(n)},${yBot}`;
+  const optX = px(optimalYear);
+  const optPt = serie.find(p => p.year === optimalYear);
+  return (
+    <svg width="100%" viewBox="0 0 320 124" style={{ display: "block" }} preserveAspectRatio="none">
+      {[yTop, (yTop + yBot) / 2, yBot].map((y, i) => <line key={i} x1={x0} y1={y} x2={x1} y2={y} stroke="var(--track)" strokeWidth="1" />)}
+      {milestones.map((m, i) => (
+        <g key={i}>
+          <line x1={px(m.year)} y1={yTop} x2={px(m.year)} y2={yBot} stroke="#D9DAE8" strokeWidth="1" strokeDasharray="2 3" />
+          <text x={px(m.year)} y={yTop - 5} fill="#A2A3B6" fontSize="7.5" fontWeight="700" textAnchor="middle" fontFamily="var(--mono)">{m.year} ans</text>
+        </g>
+      ))}
+      <polygon points={area} fill="var(--accent)" fillOpacity="0.10" />
+      <polyline points={wPts} fill="none" stroke="var(--accent)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={iPts} fill="none" stroke="var(--neg)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 4" />
+      <line x1={optX} y1={yTop} x2={optX} y2={yBot} stroke="var(--accent)" strokeWidth="1.5" />
+      {optPt && <circle cx={optX} cy={pyW(optPt.wealth)} r="4.5" fill="var(--accent)" stroke="#fff" strokeWidth="2" />}
+    </svg>
+  );
+}
+
+function ResaleTimingScreen({ state, mode, H, back, go, openHypo }) {
+  const isA = mode === "a";
+  const d = useMemo(() => window.Engine.resaleTiming(window.Engine.buildInputs(state, mode), mode, H), [state, H, mode]);
+
+  if (isA) return <ResaleTimingA d={d} back={back} openHypo={openHypo} H={H} />;
+
+  const [sid, setSid] = useState(() => state.locatif.structure || d.structures[0].id);
+  const sel = d.structures.find(s => s.id === sid) || d.structures[0];
+  const optPt = sel.series.find(p => p.year === sel.optimalYear);
+
+  // horizons clés à afficher dans la table
+  const baseYears = [5, 10, 15, 20];
+  const extra = sel.milestones.map(m => m.year);
+  const years = Array.from(new Set([...baseYears, ...extra, sel.optimalYear, 25])).filter(y => y <= 25).sort((a, b) => a - b);
+
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker="Mode B · Locatif" title="Horizon de revente" onBack={back} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <p className="screen-intro">À quel moment revendre pour optimiser la fiscalité ? Choisissez une structure : le moteur compare l'impôt de plus-value et le TRI net pour chaque durée de détention.</p>
+
+        <div className="chip-scroll">
+          {d.structures.map(s => (
+            <button key={s.id} className={"struct-chip" + (s.id === sid ? " on" : "")} onClick={() => setSid(s.id)}>
+              <span className={"sc-fam " + s.family}>{s.family === "is" ? "IS" : "IR"}</span>
+              <span className="sc-name">{s.name.replace("Nom propre — ", "")}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="timing-hero">
+          <div className="th-k">Revente optimale · {sel.name.replace("Nom propre — ", "")}</div>
+          <div className="th-v">≈ {sel.optimalYear} <small>ans</small></div>
+          <div className="th-sub">TRI net <b>{F.pct(sel.optimalTri, 1)}</b> · gain net après impôt <b>{F.signedEuro(optPt.gainNet)}</b></div>
+        </div>
+
+        <div className="card lg sect-gap">
+          <span className="card-title">Patrimoine net &amp; impôt de PV</span>
+          <div className="card-sub" style={{ margin: "2px 0 14px" }}>Sur 25 ans de détention</div>
+          <TimingChartB serie={sel.series} maxWealth={d.maxWealth} maxImpot={d.maxImpot} optimalYear={sel.optimalYear} milestones={sel.milestones} />
+          <div className="chart-x"><span>1</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25 ans</span></div>
+          <div className="proj-legend" style={{ marginTop: 12 }}>
+            <span><span className="lg-swatch" style={{ borderColor: "var(--accent)" }} />Patrimoine net</span>
+            <span><span className="lg-swatch lg-dash" style={{ borderColor: "var(--neg)" }} />Impôt plus-value</span>
+          </div>
+        </div>
+
+        <div className="card sect-gap">
+          <span className="card-title">Par horizon de revente</span>
+          <div className="hz-table">
+            <div className="hz-row head"><span>Durée</span><span>Impôt PV</span><span>Gain net</span><span style={{ textAlign: "right" }}>TRI</span></div>
+            {years.map(y => {
+              const p = sel.series.find(s => s.year === y);
+              const isOpt = y === sel.optimalYear;
+              const ms = sel.milestones.find(m => m.year === y);
+              return (
+                <div key={y} className={"hz-row" + (isOpt ? " opt" : "")}>
+                  <div className="hz-yr">{y} ans{isOpt && <div className="hz-star">optimal</div>}{ms && !isOpt && <div className="hz-star" style={{ color: "var(--pos)" }}>{ms.label}</div>}</div>
+                  <div className="hz-cell sub">{F.euro(p.impotPV)}</div>
+                  <div className="hz-cell">{F.signedEuro(p.gainNet)}</div>
+                  <div className="hz-tri">{F.pct(p.tri, 1)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="note-card">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#5B5BF0" strokeWidth="1.3" /><path d="M8 4.6v.2M8 7v4.4" stroke="#5B5BF0" strokeWidth="1.5" strokeLinecap="round" /></svg>
+          <p>{sel.note}</p>
+        </div>
+
+        <button className="btn btn-primary" style={{ marginTop: 4 }} onClick={() => go && go("reinvest", { structureId: sid, resaleYear: sel.optimalYear })}>Et après ? · Stratégie de remploi&nbsp;&nbsp;→</button>
+
+        <div className="hypo-row">
+          <HypoChip h={H.tmi} onEdit={() => openHypo("tmi")} />
+          <p className="hypo-note">TMI éditable · PV des particuliers 19 % + PS {F.num(H.ps.val, 1)} %.</p>
+        </div>
+        <Disclaimer />
+      </div>
+    </div>
+  );
+}
+
+/* Mode A : durée de portage optimale */
+function ResaleTimingA({ d, back, openHypo, H }) {
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker="Mode A · Achat-Revente" title="Horizon de revente" onBack={back} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <p className="screen-intro">En achat-revente, la sortie est la revente elle-même : chaque mois de portage ajoute des frais. Voici la durée qui maximise le TRI.</p>
+
+        <div className="timing-hero">
+          <div className="th-k">Durée de portage optimale</div>
+          <div className="th-v">≈ {d.optimalMonths} <small>mois</small></div>
+          <div className="th-sub">TRI <b>{F.pct(d.optimalTri, 1)}</b> · marge nette <b>{F.signedEuro(d.optimalMarge)}</b></div>
+        </div>
+
+        <div className="card sect-gap">
+          <span className="card-title">Marge nette selon la durée de portage</span>
+          <div className="hz-table" style={{ marginTop: 8 }}>
+            <div className="hz-row head"><span>Portage</span><span>Marge nette</span><span>Marge %</span><span style={{ textAlign: "right" }}>TRI</span></div>
+            {d.series.map(s => {
+              const isOpt = s.months === d.optimalMonths;
+              return (
+                <div key={s.months} className={"hz-row" + (isOpt ? " opt" : "")}>
+                  <div className="hz-yr">{s.months} m{isOpt && <div className="hz-star">optimal</div>}</div>
+                  <div className="hz-cell" style={{ color: s.margeNette >= 0 ? "var(--ink)" : "var(--neg)" }}>{F.signedEuro(s.margeNette)}</div>
+                  <div className="hz-cell sub">{F.pct(s.tauxMarge, 0)}</div>
+                  <div className="hz-tri">{F.pct(s.tri, 1)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="note-card">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#5B5BF0" strokeWidth="1.3" /><path d="M8 4.6v.2M8 7v4.4" stroke="#5B5BF0" strokeWidth="1.5" strokeLinecap="round" /></svg>
+          <p>Plus le portage s'allonge, plus les frais intercalaires (intérêts, taxe foncière, charges) pèsent sur la marge. Un portage court maximise le TRI tant que la revente reste réaliste.</p>
+        </div>
+
+        <div className="hypo-row">
+          <HypoChip h={H.tmi} onEdit={() => openHypo("tmi")} />
+          <p className="hypo-note">Imposition du résultat MdB · IS 15 % / 25 % puis flat tax.</p>
+        </div>
+        <Disclaimer />
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { ResaleTimingScreen });
+</script>
+
+<script type="text/babel">
+/* ============================================================
+   ÉCRAN — Stratégie de remploi
+   Revendre au bon moment dégage un capital net ; réinvesti avec
+   le même effet de levier, il finance le rachat de plusieurs biens
+   (effet « boule de neige »). Accessible depuis l'Horizon de revente.
+   ============================================================ */
+
+/* Mini histogramme de l'effet boule de neige (patrimoine par cycle) */
+function SnowballChart({ cycles, conserver }) {
+  const maxV = Math.max(...cycles.map(c => c.patrimoine), conserver, 1);
+  const refPct = (conserver / maxV) * 100;
+  return (
+    <div className="snow-chart">
+      <div className="snow-ref" style={{ bottom: "calc(26px + " + (refPct * 0.78) + "% )" }}>
+        <span className="snow-ref-tag mono">{F.k(conserver)}</span>
+      </div>
+      <div className="snow-bars">
+        {cycles.map((c, i) => {
+          const pct = (c.patrimoine / maxV) * 100;
+          return (
+            <div className="snow-bar" key={i}>
+              <div className="sb-val mono">{F.k(c.patrimoine)}</div>
+              <div className="sb-track">
+                <div className="sb-fill" style={{ height: Math.max(6, pct * 0.78) + "%" }} />
+              </div>
+              <div className="sb-cap">
+                <b>{c.biens} bien{c.biens > 1 ? "s" : ""}</b>
+                <span>an {c.annee}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* Pictogrammes de biens (parc rachetable) */
+function PropertyIcons({ n, cap }) {
+  const max = cap || 8;
+  const show = Math.min(n, max);
+  const extra = n - show;
+  return (
+    <div className="prop-icons">
+      {Array.from({ length: show }).map((_, i) => (
+        <span className="prop-ic" key={i}>
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <path d="M2 6.5 7.5 2l5.5 4.5V13H2V6.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+            <rect x="6" y="8.5" width="3" height="4.5" fill="currentColor" />
+          </svg>
+        </span>
+      ))}
+      {extra > 0 && <span className="prop-more mono">+{extra}</span>}
+    </div>
+  );
+}
+
+function ReinvestScreen({ state, mode, H, back, openHypo, params }) {
+  const inputs = useMemo(() => window.Engine.buildInputs(state, "b"), [state]);
+  const timing = useMemo(() => window.Engine.resaleTimingLocatif(inputs, H), [inputs, H]);
+  const structs = timing.structures;
+
+  const initSid = (params && params.structureId) || state.locatif.structure || structs[0].id;
+  const [sid, setSid] = useState(structs.some(s => s.id === initSid) ? initSid : structs[0].id);
+  const sel = structs.find(s => s.id === sid) || structs[0];
+
+  const [year, setYear] = useState((params && params.resaleYear) || sel.optimalYear);
+
+  const d = useMemo(
+    () => window.Engine.reinvestStrategy(inputs, H, sid, year),
+    [inputs, H, sid, year]
+  );
+
+  const gainVsConserver = d.cycles[d.cycles.length - 1].patrimoine - d.conserver;
+
+  function pickStruct(id) {
+    const s = structs.find(x => x.id === id);
+    setSid(id);
+    setYear(s.optimalYear);   // recale sur la revente optimale de la structure choisie
+  }
+
+  return (
+    <div className="app-root">
+      <StatusBar />
+      <AppBar kicker="Mode B · Locatif" title="Stratégie de remploi" onBack={back} />
+      <div className="body page" style={{ paddingTop: 4 }}>
+        <p className="screen-intro">
+          Revendre dégage un capital net. Réinvesti avec le même effet de levier,
+          il finance le rachat de plusieurs biens : c'est l'effet « boule de neige ».
+        </p>
+
+        {/* sélecteur de structure */}
+        <div className="chip-scroll">
+          {structs.map(s => (
+            <button key={s.id} className={"struct-chip" + (s.id === sid ? " on" : "")} onClick={() => pickStruct(s.id)}>
+              <span className={"sc-fam " + s.family}>{s.family === "is" ? "IS" : "IR"}</span>
+              <span className="sc-name">{s.name.replace("Nom propre — ", "")}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* hero : capital net dégagé */}
+        <div className="timing-hero remploi-hero">
+          <div className="th-k">Capital net dégagé à la revente</div>
+          <div className="th-v">{F.k(d.capitalNet)}</div>
+          <div className="th-sub">
+            année {d.ry} · après impôt de PV <b>{F.euro(d.impotPV)}</b> · ×<b>{F.num(d.multiple, 2)}</b> l'apport
+          </div>
+        </div>
+
+        {/* curseur année de revente */}
+        <div className="card sect-gap">
+          <div className="sf-top" style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
+            <span className="card-title">Année de revente</span>
+            <span className="sf-val mono" style={{ color: "var(--accent)", fontWeight: 700, fontSize: 14 }}>
+              {year} ans{year === sel.optimalYear ? " · optimal" : ""}
+            </span>
+          </div>
+          <input type="range" className="slider" min={1} max={25} step={1} value={year}
+            onChange={e => setYear(parseInt(e.target.value, 10))} />
+          <div className="chart-x" style={{ color: "var(--ink-2)", marginTop: 6 }}>
+            <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25 ans</span>
+          </div>
+        </div>
+
+        {/* capacité de rachat via levier */}
+        <div className="card sect-gap">
+          <span className="card-title">Capacité de rachat par effet de levier</span>
+          <div className="card-sub" style={{ margin: "2px 0 14px" }}>
+            Apport réinvesti à {F.pct(d.apportRate * 100, 0)} du prix de revient
+          </div>
+          <div className="lev-flow">
+            <div className="lev-step">
+              <div className="ls-k">Capital</div>
+              <div className="ls-v mono">{F.k(d.capitalNet)}</div>
+            </div>
+            <svg className="lev-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9h11m0 0-4-4m4 4-4 4" stroke="var(--ink-2)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <div className="lev-step">
+              <div className="ls-k">Capacité d'achat</div>
+              <div className="ls-v mono">{F.k(d.capaciteValeur)}</div>
+            </div>
+            <svg className="lev-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9h11m0 0-4-4m4 4-4 4" stroke="var(--ink-2)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <div className="lev-step accent">
+              <div className="ls-k">Biens</div>
+              <div className="ls-v mono">{d.nbMax}</div>
+            </div>
+          </div>
+          <div className="prop-row">
+            <PropertyIcons n={d.nbMax} cap={8} />
+            <span className="prop-note">≈ {F.k(d.coutTotal)} / bien similaire</span>
+          </div>
+        </div>
+
+        {/* boule de neige */}
+        <div className="card lg sect-gap">
+          <span className="card-title">Effet boule de neige</span>
+          <div className="card-sub" style={{ margin: "2px 0 6px" }}>
+            Deux cycles de revente-rachat, chacun sur {d.ry} ans
+          </div>
+          <SnowballChart cycles={d.cycles} conserver={d.conserver} />
+          <div className="proj-legend" style={{ marginTop: 10 }}>
+            <span><span className="lg-swatch" style={{ borderColor: "var(--accent)", borderTopWidth: 9, height: 9, width: 12, borderRadius: 3 }} />Patrimoine remployé</span>
+            <span><span className="lg-swatch lg-dash" style={{ borderColor: "var(--ink-2)" }} />Conserver 1 bien</span>
+          </div>
+          <div className={"remploi-delta " + (gainVsConserver >= 0 ? "pos" : "neg")}>
+            <span className="rd-label">Patrimoine à {d.horizon} ans vs conserver un seul bien</span>
+            <span className="rd-val mono">{F.signedEuro(gainVsConserver)}</span>
+          </div>
+        </div>
+
+        {/* capital dégagé selon l'année */}
+        <div className="card sect-gap">
+          <span className="card-title">Capital dégagé selon l'année de revente</span>
+          <div className="hz-table">
+            <div className="hz-row head"><span>Durée</span><span>Impôt PV</span><span style={{ gridColumn: "span 2", textAlign: "right" }}>Capital net</span></div>
+            {d.scenarios.map(s => (
+              <div key={s.year} className={"hz-row" + (s.year === year ? " opt" : "")} onClick={() => setYear(s.year)} style={{ cursor: "pointer" }}>
+                <div className="hz-yr">{s.year} ans{s.isOptimal && <div className="hz-star">optimal</div>}</div>
+                <div className="hz-cell sub">{F.euro(s.impotPV)}</div>
+                <div className="hz-cell" style={{ gridColumn: "span 2", textAlign: "right", color: "var(--accent)", fontWeight: 700 }}>{F.k(s.capital)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="note-card">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#5B5BF0" strokeWidth="1.3" /><path d="M8 4.6v.2M8 7v4.4" stroke="#5B5BF0" strokeWidth="1.5" strokeLinecap="round" /></svg>
+          <p>Le remploi suppose un réinvestissement à conditions de marché et de financement constantes. {d.note}</p>
+        </div>
+
+        <div className="hypo-row">
+          <HypoChip h={H.ps} onEdit={() => openHypo("ps")} />
+          <p className="hypo-note">Capacité indicative · levier &amp; conditions bancaires à confirmer.</p>
+        </div>
+        <Disclaimer />
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { ReinvestScreen });
+</script>
+
+<script type="text/babel">
+/* ============================================================
+   APP — routeur, état partagé, navigation
+   ============================================================ */
+function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+
+function App() {
+  const D = window.Engine.DEFAULTS;
+  const [state, setState] = useState(() => ({
+    bien: deepClone(D.bien), common: deepClone(D.common),
+    locatif: deepClone(D.locatif), revente: deepClone(D.revente)
+  }));
+  const [H, setH] = useState(() => deepClone(window.Engine.HYPOTHESES));
+  const [mode, setMode] = useState("b");
+  const [route, setRoute] = useState("selector");
+  const [hist, setHist] = useState([]);
+  const [routeParams, setRouteParams] = useState({});
+  const [hypoSheet, setHypoSheet] = useState(null);
+  const [toastMsg, setToastMsg] = useState(null);
+  const bodyKey = useRef(0);
+
+  // restore last position
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("nbc-nav") || "null");
+      if (saved && saved.route) { setRoute(saved.route); setMode(saved.mode || "b"); }
+    } catch (e) {}
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("nbc-nav", JSON.stringify({ route, mode }));
+  }, [route, mode]);
+
+  function go(next, params) { setHist(h => [...h, route]); setRouteParams(params || {}); setRoute(next); }
+  function back() {
+    setHist(h => {
+      if (!h.length) {
+        // arrivée directe (route restaurée) : repli sûr pour ne jamais piéger l'utilisateur
+        const top = (route === "dashA" || route === "dashB" || route === "common" || route === "selector");
+        setRoute(top ? "selector" : (mode === "a" ? "dashA" : "dashB"));
+        return h;
+      }
+      const copy = [...h]; const prev = copy.pop(); setRoute(prev); return copy;
+    });
+  }
+  function update(section, patch) { setState(s => ({ ...s, [section]: { ...s[section], ...patch } })); }
+  function setHypo(key, val) { setH(prev => ({ ...prev, [key]: { ...prev[key], val } })); }
+  function switchMode(m) { setMode(m); setRoute(m === "a" ? "dashA" : "dashB"); }
+  function toast(msg) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2400); }
+
+  const common = { state, update, mode, H, go, back, params: routeParams, openHypo: setHypo ? (k) => setHypoSheet(k) : null };
+
+  let screen;
+  switch (route) {
+    case "selector": screen = <SelectorScreen mode={mode} setMode={setMode} go={go} />; break;
+    case "common":   screen = <CommonScreen {...common} />; break;
+    case "inputA":   screen = <InputAScreen state={state} update={update} go={go} back={back} />; break;
+    case "inputB":   screen = <InputBScreen state={state} update={update} go={go} back={back} />; break;
+    case "dashA":    screen = <DashAScreen {...common} onSwitch={switchMode} />; break;
+    case "dashB":    screen = <DashBScreen {...common} onSwitch={switchMode} />; break;
+    case "regimes":  screen = <StructuresScreen {...common} toast={toast} />; break;
+    case "structures": screen = <StructuresScreen {...common} toast={toast} />; break;
+    case "timing":   screen = <ResaleTimingScreen {...common} />; break;
+    case "reinvest": screen = <ReinvestScreen {...common} />; break;
+    case "scenarios":screen = <ScenariosScreen state={state} mode={mode} H={H} back={back} />; break;
+    case "report":   screen = <ReportScreen state={state} mode={mode} H={H} back={back} toast={toast} />; break;
+    default:         screen = <SelectorScreen mode={mode} setMode={setMode} go={go} />;
+  }
+
+  return (
+    <div className="app-stage">
+      <div className="phone">
+        <div className="notch" />
+        <div className="screen">
+          {screen}
+          {hypoSheet && <HypoSheet hkey={hypoSheet} H={H} onChange={setHypo} onClose={() => setHypoSheet(null)} />}
+          {toastMsg && <div className="toast">{toastMsg}</div>}
+          <div className="home-ind" />
+        </div>
+      </div>
+      <div className="hint">
+        Prototype navigable · saisies live · <kbd>R</kbd> réinitialiser
+      </div>
+    </div>
+  );
+}
+
+// reset shortcut
+window.addEventListener("keydown", e => {
+  if (e.key === "r" && !/input|textarea/i.test(document.activeElement.tagName)) {
+    localStorage.removeItem("nbc-nav"); location.reload();
+  }
+});
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

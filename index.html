@@ -674,7 +674,8 @@ input[type=range].slider::-moz-range-thumb {
   .app-root { height: auto !important; }
   .body { overflow: visible !important; height: auto !important; padding: 0 !important; }
   .report-pages, .dl-bar { display: none !important; }
-  .rep-doc { position: static !important; left: auto !important; top: auto !important; width: 100% !important; }
+  .rep-doc-hide { position: static !important; width: auto !important; height: auto !important; overflow: visible !important; }
+  .rep-doc { width: 100% !important; }
   .rp-page { box-shadow: none !important; border: 1px solid #ECEDF4 !important; border-radius: 4px !important;
     break-inside: avoid; page-break-inside: avoid; margin-bottom: 8mm !important; padding: 6mm !important; }
 }
@@ -682,7 +683,8 @@ input[type=range].slider::-moz-range-thumb {
 /* ============================================================
    DOSSIER BANCAIRE — document A4 professionnel (export PDF)
    ============================================================ */
-.rep-doc { position: fixed; left: -10000px; top: 0; width: 794px; background: #fff; color: var(--ink); font-family: var(--sans); }
+.rep-doc-hide { position: absolute; left: 0; top: 0; width: 0; height: 0; overflow: hidden; z-index: -1; }
+.rep-doc { width: 794px; background: #fff; color: var(--ink); font-family: var(--sans); }
 .rep-page { width: 794px; min-height: 1122px; padding: 46px 52px 54px; position: relative; display: flex; flex-direction: column; background: #fff; box-sizing: border-box; }
 .rep-page { break-after: page; page-break-after: always; }
 .rep-page:last-child { break-after: auto; page-break-after: auto; }
@@ -2378,8 +2380,10 @@ function ReportPagesA({ d, state, H }) {
 function BankReportDoc({ docRef, state, mode, H }) {
   const d = bankData(state, mode, H);
   return (
-    <div className="rep-doc" ref={docRef}>
-      {mode === "a" ? <ReportPagesA d={d} state={state} H={H} /> : <ReportPagesB d={d} state={state} H={H} />}
+    <div className="rep-doc-hide">
+      <div className="rep-doc" ref={docRef}>
+        {mode === "a" ? <ReportPagesA d={d} state={state} H={H} /> : <ReportPagesB d={d} state={state} H={H} />}
+      </div>
     </div>
   );
 }
